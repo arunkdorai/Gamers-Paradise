@@ -4,7 +4,7 @@ const dotenv = require('dotenv');
 // Load environment variables from .env file
 dotenv.config();
 
-const dbURI = process.env.DB_URI;
+const dbURI = process.env.DBURI;
 mongoose.connect(dbURI)
 .then(()=>{
   console.log('database connected successfully');
