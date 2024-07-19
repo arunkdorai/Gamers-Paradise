@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About Us - Gamers Paradise</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome CSS -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <!-- Logo -->
+      <a class="navbar-brand" href="/"
+        ><img src="/images/logo.png" alt="Logo"
+      /></a>
+
+      <!-- Nav Links -->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="/">HOME</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/console">CONSOLE</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/games">GAMES</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/computer">COMPUTER</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/shop">SHOP</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/about">ABOUT US</a>
+          </li>
+        </ul>
+      </div>
+      <!-- Search Bar with Link -->
+      <form
+        class="form-inline my-2 my-lg-0 search-form"
+        action="/search"
+        method="POST"
+      >
+        <input
+          class="form-control mr-sm-2 search-input"
+          type="search"
+          placeholder="Search"
+          aria-label="Search"
+          name="search"
+        />
+        <button class="search-icon" type="submit">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+      <!-- Wishlist Icon with Link -->
+      <a href="/wishlist" class="wishlist-icon">
+        <i class="fas fa-heart"></i>
+      </a>
+      <!-- Add-to-Cart Icon with Link -->
+      <a href="/add-to-cart" class="cart-icon">
+        <i class="fas fa-shopping-cart"></i>
+      </a>
+
+      <% if (fullName) { %>
+      <div class="user-info">
+        <a href="/profile" class="nav-link nav-linklogout"><%= fullName %></a>
+        <a href="/logout" class="nav-link logout nav-linklogout">
+          <i class="fas fa-sign-out-alt"></i>
+        </a>
+      </div>
+      <% } else { %>
+      <!-- If user is not logged in, display login/signup -->
+      <a href="/login" class="nav-link login">LOGIN/SIGNUP</a>
+      <% } %>
+
+      <!-- Hamburger Menu Toggle Button -->
+      <button
+        class="navbar-toggler ml-auto"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon">&#9776;</span>
+      </button>
+    </nav>
+
+    <!-- About Section -->
+    <section class="about-section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6">
+            <h2>Welcome to Gamers Paradise</h2>
+            <h3>
+              <p>
+                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+              </p>
+              <p>
+                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+              </p>
+            </h3>
+          </div>
+          <div class="col-md-6">
+            <img src="/images/logo.png" alt="About Image" class="img-fluid" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Footer -->
+    <footer class="main-footer">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="footer-section">
+            <h5>POLICIES AND ORDER</h5>
+            <ul>
+              <li>Authenticity Guarantee</li>
+              <li>Privacy Policy</li>
+              <li>Return, Exchange & Refund Policy</li>
+              <li>Terms and Conditions</li>
+              <li>Warranty Information</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="footer-section">
+            <h5>HELP</h5>
+            <ul>
+              <li>FAQ's</li>
+              <li>My Account</li>
+              <li>Track my order</li>
+              <li>Sitemap</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="footer-section">
+            <h5>FOLLOW US ON</h5>
+            <div class="social-media-icons">
+              <a href="#">INSTAGRAM</a>
+              <a href="#">FACEBOOK</a>
+              <a href="#">TWITTER</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <!-- Bootstrap JS and jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/js/main.js"></script>
+  </body>
+</html>

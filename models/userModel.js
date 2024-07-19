@@ -1,0 +1,60 @@
+const mongoose = require("mongoose");
+
+const userSchema = new mongoose.Schema({
+  fullname: {
+    type: String,
+    required: true,
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+  },
+  phone: {
+    type: Number,
+  },
+  status: {
+    type: Boolean,
+    default: false,
+  },
+  googleuser: {
+    type: Boolean,
+    default: false,
+  },
+  googleId: {
+    type: String,
+  },
+  addresses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Address" }],
+  cart: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+  // cart: [{
+  //   product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+  //   quantity: { type: Number, default: 1 }
+  // }],
+  order: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    required: true,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+    required: true,
+  },
+});
+
+// Update the updatedAt field before saving the document
+userSchema.pre("save", function (next) {
+  this.updatedAt = new Date();
+  next();
+});
+
+const User = mongoose.model("User", userSchema);
+module.exports = User;
