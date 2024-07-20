@@ -1,6 +1,7 @@
 const User = require("../../models/userModel");
 const Product = require("../../models/productModel");
 const Address = require("../../models/addressModel");
+const mongoose = require("mongoose");
 
 // function for to add product to cart
 const addToCart = async (req, res) => {
@@ -68,25 +69,67 @@ const addToCart = async (req, res) => {
 // };
 
 //function for remove product from cart
-const removeFromCart = async (req, res) => {
+async function removeFromCart(req, res) {
   try {
-    const productId = req.params.productId;
-    const userId = req.session.userData._id;
+      const userId = req.user._id; // Assuming you have the user ID from the request
+      const productId = req.params.productId; // Assuming the product ID is passed as a URL parameter
 
-    // Find the user by ID
-    const user = await User.findById(userId);
+      let user = await User.findById(userId);
 
-    // Remove the product from the user's cart
-    // user.cart = user.cart.filter((item) => item.toString() !== productId);
-    user.cart = user.cart.filter((item) => item.product.toString() !== productId);
-    await user.save();
+      if (!user) {
+          return res.status(404).send({ error: 'User not found' });
+      }
 
-    return res.redirect("/add-to-cart");
+      // Log the cart contents for debugging
+      console.log('User cart before removal:', JSON.stringify(user.cart, null, 2));
+
+      // Check if the product exists in the cart
+      const productExistsInCart = user.cart.some((item) => item.toString() === productId);
+
+      if (!productExistsInCart) {
+          return res.status(404).send({ error: 'Product not found in cart' });
+      }
+
+      // Filter out the product to be removed
+      user.cart = user.cart.filter((item) => item.toString() !== productId);
+
+      try {
+          await user.save();
+
+          // Log the cart contents after removal
+          console.log('User cart after removal:', JSON.stringify(user.cart, null, 2));
+
+          res.status(200).send({ message: 'Product removed from cart successfully' });
+      } catch (error) {
+          if (error instanceof mongoose.Error.VersionError) {
+              // Retry logic: Fetch the user again and retry saving
+              user = await User.findById(userId);
+
+              // Check if the product exists in the cart
+              const productExistsInCart = user.cart.some((item) => item.toString() === productId);
+
+              if (!productExistsInCart) {
+                  return res.status(404).send({ error: 'Product not found in cart' });
+              }
+
+              // Filter out the product to be removed
+              user.cart = user.cart.filter((item) => item.toString() !== productId);
+
+              await user.save();
+
+              // Log the cart contents after removal
+              console.log('User cart after removal:', JSON.stringify(user.cart, null, 2));
+
+              res.status(200).send({ message: 'Product removed from cart successfully' });
+          } else {
+              throw error;
+          }
+      }
   } catch (error) {
-    console.error("Error removing product from cart:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+      console.error('Error removing product from cart:', error);
+      res.status(500).send({ error: 'An error occurred while removing the product from the cart' });
   }
-};
+}
 
 //function for render cart page
 const renderCartPage = async (req, res) => {

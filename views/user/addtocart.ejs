@@ -249,7 +249,7 @@
       
             function removeFromCart(productId) {
               fetch(`/remove-from-cart/${productId}`, {
-                method: "DELETE",
+                method: "GET",
                 headers: {
                   "Content-Type": "application/json",
                 },

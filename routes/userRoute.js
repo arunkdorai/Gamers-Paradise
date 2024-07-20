@@ -186,6 +186,13 @@ router.post(
   addToCartController.addToCart
 );
 
+router.get(
+  "/remove-from-cart/:productId",
+  isAuth,
+  checkUserStatus,
+  addToCartController.removeFromCart
+);
+
 router.post(
   "/remove-from-cart/:productId",
   isAuth,
