@@ -846,7 +846,12 @@ const shopfilterProduct = async (req, res) => {
 //function for search option
 const search = async (req, res) => {
   try {
-    const { search } = req.body; // Retrieve the search query from request query parameters
+    const { search } = req.body; // Retrieve the search query from the request body
+
+    // if (!search) {
+    //   return res.status(400).send("Search query is required");
+    // }
+
     let fullName = "";
     if (req.session.userData) {
       const { email } = req.session.userData;
@@ -856,12 +861,18 @@ const search = async (req, res) => {
         fullName = user.fullname;
       }
     }
-    // Perform a case-insensitive search for product names containing the search query
+
+    // Perform a case-insensitive search across multiple fields
     const products = await Product.find({
-      product: { $regex: search, $options: "i" },
+      $or: [
+        { product: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+        { category: { $regex: search, $options: "i" } }
+      ],
       status: true,
     });
-    res.render("searchResult", { products, fullName }); // Render a separate view for displaying search results
+
+    res.render("searchResult", { products, fullName }); // Render the search results view
   } catch (error) {
     console.error("Error occurred while searching for products:", error);
     res.status(500).send("Internal Server Error");
