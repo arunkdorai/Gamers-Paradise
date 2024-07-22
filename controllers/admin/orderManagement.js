@@ -85,14 +85,18 @@ const cancelOrder = async (req, res) => {
       })
     );
 
-    const userId = req.session.userData._id;
-    const fullName = req.session.userData.fullname;
-    const orders = await Order.find({ user: userId })
-      .populate("address")
-      .populate("products.product")
-      .sort({ createdAt: -1 });
+    if (req.session.userData) {
+      const userId = req.session.userData._id;
+      const fullName = req.session.userData.fullname;
+      const orders = await Order.find({ user: userId })
+        .populate("address")
+        .populate("products.product")
+        .sort({ createdAt: -1 });
 
-    res.status(200).json({ message: "Order cancelled successfully" });
+      res.status(200).json({ message: "Order cancelled successfully" });
+    } else {
+      res.status(200).json({ message: "Order cancelled successfully, but user data is missing in session" });
+    }
   } catch (error) {
     console.error("Error cancelling order:", error);
     res.status(500).json({ message: "Internal server error" });
