@@ -6,13 +6,14 @@ require("dotenv").config();
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const twilioClient = twilio(accountSid, authToken);
+const yourPhoneNumber = process.env.YOUR_PHONE_NUMBER;
 
 const sendOTP = async (to, otp) => {
   try {
     const message = await twilioClient.messages.create({
       body: `Your OTP for verification is: ${otp}`,
       from: process.env.TWILIO_PHONE_NUMBER,
-      to: "+918892737153",
+      to: yourPhoneNumber,
     });
     console.log(`otp:${otp}`);
 
