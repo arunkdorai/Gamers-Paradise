@@ -81,7 +81,7 @@ async function removeFromCart(req, res) {
       }
 
       // Log the cart contents for debugging
-      console.log('User cart before removal:', JSON.stringify(user.cart, null, 2));
+      // console.log('User cart before removal:', JSON.stringify(user.cart, null, 2));
 
       // Check if the product exists in the cart
       const productExistsInCart = user.cart.some((item) => item.toString() === productId);
@@ -97,7 +97,7 @@ async function removeFromCart(req, res) {
           await user.save();
 
           // Log the cart contents after removal
-          console.log('User cart after removal:', JSON.stringify(user.cart, null, 2));
+          // console.log('User cart after removal:', JSON.stringify(user.cart, null, 2));
 
           res.status(200).send({ message: 'Product removed from cart successfully' });
       } catch (error) {
@@ -118,7 +118,7 @@ async function removeFromCart(req, res) {
               await user.save();
 
               // Log the cart contents after removal
-              console.log('User cart after removal:', JSON.stringify(user.cart, null, 2));
+              // console.log('User cart after removal:', JSON.stringify(user.cart, null, 2));
 
               res.status(200).send({ message: 'Product removed from cart successfully' });
           } else {
