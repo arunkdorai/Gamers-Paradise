@@ -2,6 +2,7 @@ const Order = require("../../models/orderModel");
 const Product = require("../../models/productModel");
 const User = require("../../models/userModel");
 const Address = require("../../models/addressModel");
+const Cart = require("../../models/addtocartModel")
 const fs = require("fs");
 const path = require("path");
 const ITEMS_PER_PAGE = 5; // Number of orders per page
@@ -342,7 +343,7 @@ const placeOrder = async (req, res) => {
     req.session.totalPrice = 0;
 
     // Clear cart in the database
-    await User.findByIdAndUpdate(userId, { cart: [] });
+    await Cart.findOneAndUpdate({ userId: userId }, { cartItems: [] });
 
     // Render the success page with the order ID
     return res.status(200).render("orderSuccess", { orderId: order._id });
@@ -407,7 +408,7 @@ const processpayment = async (req, res) => {
     );
 
     req.session.cart = [];
-    await User.findByIdAndUpdate(userId, { cart: [] });
+    await Cart.findOneAndUpdate({ userId: userId }, { cartItems: [] });
 
     // 6. Redirect to the order success page or perform any other necessary actions
     res.status(200).json({ success: true });

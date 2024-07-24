@@ -207,11 +207,12 @@ router.post(
   addToCartController.checkout
 );
 
-// router.post('/update-cart-quantity', 
-//   checkoutMiddleware,
-//   isAuth,
-//   checkUserStatus,
-//   addToCartController.updateCartQuantity);
+router.patch('/update-cart-quantity/:productId',
+  checkoutMiddleware,
+  isAuth,
+  checkUserStatus,
+  addToCartController.updateCartQuantity
+)
 
 // Routes for checkout and orders
 router.get(
