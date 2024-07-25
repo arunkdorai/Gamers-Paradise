@@ -5,10 +5,11 @@ const User = require("../../models/userModel");
 //function to change order status
 const changeOrderStatus = async (req, res) => {
   try {
-    const { customOrderId } = req.body; // Use customOrderId
+    const { orderId } = req.body; // Use customOrderId
     const newStatus = "completed"; // Admin can only set to completed
 
-    const order = await Order.findOne({ customOrderId }); // Find by customOrderId
+    const order = await Order.findOne({ customOrderId:orderId }); // Find by customOrderId
+    console.log("order", orderId)
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
@@ -17,10 +18,9 @@ const changeOrderStatus = async (req, res) => {
     if (order.status !== "pending") {
       return res.status(400).json({
         message:
-          "Order status can only be changed from 'pending' to 'completed'",
+          `Order status can only be changed from 'pending' to 'completed'`,
       });
     }
-
     // Set new status if the validation passes
     order.status = newStatus;
 
@@ -29,8 +29,8 @@ const changeOrderStatus = async (req, res) => {
         product.status = "completed";
       }
     });
-
     await order.save();
+    console.log("third")
 
     res
       .status(200)

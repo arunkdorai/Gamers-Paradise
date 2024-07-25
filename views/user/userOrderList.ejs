@@ -156,7 +156,7 @@
           <tr>
             <th>Order ID</th>
             <th>Date</th>
-            <th>Amount paid</th>
+            <th>Amount Paid</th>
             <th>Payment Method</th>
             <th>Address</th>
             <th>Status</th>
@@ -451,7 +451,7 @@
                     <td style="text-align: left">Subtotal</td>
                     <td style="text-align: left">
                       <%=
-                      ((order.grandTotalPrice-order.reducedPrice-order.returnedPrice-45-order.discountedAmount)-((order.grandTotalPrice-order.reducedPrice-order.returnedPrice-45)/21)).toFixed(2)
+                      ((order.grandTotalPrice || 0) - (order.reducedPrice || 0) - (order.returnedPrice || 0) - 45 - (order.discountedAmount || 0) - (((order.grandTotalPrice || 0) - (order.reducedPrice || 0) - (order.returnedPrice || 0) - 45) / 21)).toFixed(2)
                       %>
                     </td>
                   </tr>
@@ -463,7 +463,7 @@
                     <td style="text-align: left">Tax</td>
                     <td style="text-align: left">
                       <%=
-                      ((order.grandTotalPrice-order.reducedPrice-order.returnedPrice-45)/21).toFixed(2)
+                      (((order.grandTotalPrice || 0) - (order.reducedPrice || 0) - (order.returnedPrice || 0) - 45) / 21).toFixed(2)
                       %>
                     </td>
                   </tr>
@@ -471,7 +471,7 @@
                   <tr>
                     <th style="text-align: left">Discount Amount</th>
                     <th style="text-align: left">
-                      <%= order.discountedAmount %>
+                      <%= order.discountedAmount || 0 %>
                     </th>
                   </tr>
                   <% } %> <% if(order.paymentMethod == "pay_by_wallet") { %>
@@ -486,28 +486,29 @@
                     <th style="text-align: left">
                       <%= "For the order, used wallet amount" %>
                     </th>
-                    <th style="text-align: left"><%= order.walletAmount %></th>
+                    <th style="text-align: left"><%= order.walletAmount || 0 %></th>
                   </tr>
-                  <% } %> <% if(order.reducedPrice||order.returnedPrice) { %>
+                  <% } %> <% if(order.reducedPrice || order.returnedPrice) { %>
                   <tr>
                     <th style="text-align: left">returned/cancelled Amount</th>
                     <th style="text-align: left">
-                      <%= order.reducedPrice+order.returnedPrice %>
+                      <%= (order.reducedPrice || 0) + (order.returnedPrice || 0) %>
                     </th>
                   </tr>
                   <% } %>
-
+            
                   <tr>
                     <th style="text-align: left">Total</th>
                     <th style="text-align: left">
                       <%=
-                      (order.grandTotalPrice-order.reducedPrice-order.returnedPrice-order.discountedAmount).toFixed(2)
+                      ((order.grandTotalPrice || 0) - (order.reducedPrice || 0) - (order.returnedPrice || 0) - (order.discountedAmount || 0)).toFixed(2)
                       %>
                     </th>
                   </tr>
                 </tbody>
               </table>
             </div>
+            
             <div class="modal-footer">
               <button
                 type="button"
@@ -639,75 +640,6 @@
           }
         });
       }
-    </script>
-    <script>
-
-      document.addEventListener("DOMContentLoaded", function () {
-        const orderId = this.querySelector('input[name="orderId"]').value;
-        const amount = this.querySelector('input[name="amount"]').value * 100; // Convert amount to paise
-        console.log("amount:", amount);
-
-        document
-          .querySelectorAll('form[action="/repayment/process"]')
-          .forEach((form) => {
-            form.addEventListener("submit", function (event) {
-              event.preventDefault(); // Prevent the form from submitting normally
-
-              const orderId = this.querySelector('input[name="orderId"]').value;
-              const amount =
-                this.querySelector('input[name="amount"]').value * 100; // Convert amount to paise
-              console.log("amount:", amount);
-
-              fetch("/repayment/process", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ amount, orderId }),
-              })
-                .then((response) => response.json())
-                .then((data) => {
-                  const options = {
-                    amount: amount,
-                    currency: data.currency,
-                    order_id: data.orderId,
-                    name: "Gamers Paradise",
-                    description: "Order Payment",
-                    image: "/images/logo.png",
-                    handler: function (response) {
-                      handlePaymentSuccess(response, orderId);
-                    },
-                  };
-
-                })
-                .catch((error) => {
-                  console.error("Error fetching order details:", error);
-                });
-            });
-          });
-
-        function handlePaymentSuccess(response, orderId) {
-          Swal.fire({
-            icon: "success",
-            title: "Payment Successful",
-            text: "Your payment has been successfully processed!",
-          }).then(() => {
-            fetch(`/repayment/success`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(response),
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                console.log(data);
-              })
-              .catch((error) =>
-                console.error("Payment success handler error:", error)
-              );
-          });
-        }
     </script>
   </body>
 </html>

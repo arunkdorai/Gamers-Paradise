@@ -184,6 +184,7 @@
                                     <td><%= order[i].products[j].quantity %></td>
                                     <td><%= order[i].products[j].product.price %></td>
                                     <td><%= order[i].products[j].status %></td>
+                                    
                         <td>
                             <% if (order[i].products[j].status === 'pending') { %>
                               <button class="btn btn-danger cancel-product" data-order-id="<%= order[i].customOrderId %>" data-product-id="<%= order[i].products[j].product._id %>">Cancel Product</button>
@@ -290,7 +291,7 @@
        // SweetAlert2 for canceling a product
        document.querySelectorAll('.cancel-product').forEach(button => {
     button.addEventListener('click', async function () {
-    const orderId = this.dataset.customOrderId ;
+    const orderId = this.dataset.orderId ;
     const productId = this.dataset.productId;
 
     Swal.fire({
@@ -343,7 +344,7 @@
 });
 document.querySelectorAll('.return-product').forEach(button => {
   button.addEventListener('click', async function() {
-    const orderId = this.dataset.customOrderId ;
+    const orderId = this.dataset.orderId ;
     const productId = this.dataset.productId;
 
     Swal.fire({
@@ -397,7 +398,7 @@ document.querySelectorAll('.return-product').forEach(button => {
 
 document.querySelectorAll('.return-order').forEach(button => {
   button.addEventListener('click', async function() {
-    const orderId = this.dataset.customOrderId ;
+    const orderId = this.dataset.orderId ;
 
     Swal.fire({
       title: 'Are you sure?',
@@ -446,7 +447,7 @@ document.querySelectorAll('.return-order').forEach(button => {
 
 
 function changeStatus(element) {
-  const orderId = element.dataset.customOrderId ;
+  const orderId = element.dataset.orderId ;
   const newStatus = element.value;
   if (newStatus === 'completed') {
     fetch(`/admin/changeOrderStatus`, {
@@ -459,6 +460,7 @@ function changeStatus(element) {
     })
     .then(response => response.json())
     .then(data => {
+      console.log('Server Response:', data);
       if (data.message) {
         Swal.fire({
           title: 'Order Status Updated',
@@ -497,7 +499,7 @@ function changeStatus(element) {
 
   document.querySelectorAll('.cancel-order').forEach(button => {
   button.addEventListener('click', async function() {
-    const orderId = this.dataset.customOrderId;
+    const orderId = this.dataset.orderId;
 
     Swal.fire({
       title: 'Are you sure?',
