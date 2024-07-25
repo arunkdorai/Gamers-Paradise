@@ -45,8 +45,12 @@ const renderOrderListPage = async (req, res) => {
 //function for cancel the order
 const cancelOrder = async (req, res) => {
   try {
-    const orderId = req.params.id;
-    const order = await Order.findById(orderId);
+    const customOrderId = req.params.customOrderId;
+    const order = await Order.findOne({ customOrderId: customOrderId });
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
 
     // Check if the order is already cancelled
     if (order.status === "Cancelled") {
@@ -287,7 +291,6 @@ const placeOrder = async (req, res) => {
     }
 
     const activeAddress = user.addresses[0];
-
     // Check product availability and stock
     for (const item of cart) {
       if (!item._id) {
@@ -307,12 +310,14 @@ const placeOrder = async (req, res) => {
       }
     }
 
+    const customOrderId = await Order.generateOrderId();
     const grandTotalPrice = req.session.totalPrice;
     const difference = grandTotalPrice - totalPrice - parseInt(discountedAmount);
 
     const order = await Order.create({
       grandTotalPrice: grandTotalPrice,
       user: userId,
+      customOrderId,
       totalPrice: req.body.totalPrice,
       paymentMethod,
       address: activeAddress._id,
@@ -346,7 +351,7 @@ const placeOrder = async (req, res) => {
     await Cart.findOneAndUpdate({ userId: userId }, { cartItems: [] });
 
     // Render the success page with the order ID
-    return res.status(200).render("orderSuccess", { orderId: order._id });
+    return res.status(200).render("orderSuccess", { orderId: customOrderId });
 
   } catch (error) {
     console.error("Error placing order:", error);
@@ -394,7 +399,7 @@ const processpayment = async (req, res) => {
 
     // Associate the order with the user
     await User.findByIdAndUpdate(userId, {
-      $push: { order: order._id },
+      $push: { order: order.customOrderId },
     });
     // 5. Update product quantities and clear the cart
     await Promise.all(

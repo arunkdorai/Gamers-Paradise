@@ -72,12 +72,12 @@ router.post(
 );
 router.get("/logout", adminController.adminLogout);
 router.post(
-  "/cancelOrder/:orderId",
+  "/cancelOrder/:customOrderId",
   adminAuth.isLogin,
   orderManagement.cancelOrder
 );
 router.post(
-  "/orders/cancel-product/:orderId/:productId",
+  "/orders/cancel-product/:customOrderId/:productId",
   orderManagement.cancelProductAsAdmin
 );
 

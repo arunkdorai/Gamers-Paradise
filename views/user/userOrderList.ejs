@@ -167,7 +167,7 @@
         <tbody>
           <% orders.forEach(order => { %>
           <tr>
-            <td><%= order._id %></td>
+            <td><%= order.customOrderId %></td>
             <td><%= order.createdAt.toDateString() %></td>
             <td><%= order.totalPrice %></td>
             <td><%= order.paymentMethod %></td>
@@ -185,7 +185,7 @@
               <button
                 class="btn btn-primary"
                 data-toggle="modal"
-                data-target="#priceBreakdownModal-<%= order._id %>"
+                data-target="#priceBreakdownModal-<%= order.customOrderId %>"
               >
                 View Price
                 <details></details>
@@ -195,7 +195,7 @@
               <button
                 class="btn btn-primary"
                 data-toggle="modal"
-                data-target="#productDetailsModal-<%= order._id %>"
+                data-target="#productDetailsModal-<%= order.customOrderId %>"
               >
                 View Products
               </button>
@@ -203,14 +203,14 @@
               <br />
               <% if (order.status == 'completed') { %>
               <form
-                action="/orders/return/<%= order._id %>"
+                action="/orders/return/<%= order.customOrderId %>"
                 method="POST"
                 class="d-inline"
               >
                 <!-- <button
                   type="button"
                   class="btn btn-warning"
-                  onclick="confirmReturnOrder('<%= order._id %>')"
+                  onclick="confirmReturnOrder('<%= order.customOrderId %>')"
                 >
                   Return Order
                 </button> -->
@@ -225,14 +225,14 @@
               <br />
               <% } else if (order.status == 'pending') { %>
               <form
-                action="/orders/cancel/<%= order._id %>"
+                action="/orders/cancel/<%= order.customOrderId %>"
                 method="POST"
                 class="d-inline"
               >
                 <button
                   type="button"
                   class="btn btn-warning"
-                  onclick="confirmCancelOrder('<%= order._id %>')"
+                  onclick="confirmCancelOrder('<%= order.customOrderId %>')"
                 >
                   Cancel Order
                 </button>
@@ -253,7 +253,7 @@
               <br />
               <% } else if (order.status == 'paymentpending') { %>
               <form action="/repayment/process" method="POST" class="d-inline">
-                <input type="hidden" name="orderId" value="<%= order._id %>" />
+                <input type="hidden" name="orderId" value="<%= order.customOrderId %>" />
                 <input
                   type="hidden"
                   name="amount"
@@ -266,11 +266,11 @@
                 <br />
               </form>
               <form
-                action="/orderAbort/<%= order._id %>"
+                action="/orderAbort/<%= order.customOrderId %>"
                 method="POST"
                 class="d-inline"
               >
-                <input type="hidden" name="orderId" value="<%= order._id %>" />
+                <input type="hidden" name="orderId" value="<%= order.customOrderId %>" />
                 <input
                   type="hidden"
                   name="amount"
@@ -281,7 +281,7 @@
                 <br />
               </form>
               <% } %> <% if (order.status === 'completed') { %>
-              <!-- <a href="/orders/<%= order._id %>/invoice" class="btn btn-primary"
+              <!-- <a href="/orders/<%= order.customOrderId %>/invoice" class="btn btn-primary"
                 >Invoice</a
               > -->
               <% } %>
@@ -293,10 +293,10 @@
       <% orders.forEach(order => { %>
       <div
         class="modal fade"
-        id="productDetailsModal-<%= order._id %>"
+        id="productDetailsModal-<%= order.customOrderId %>"
         tabindex="-1"
         role="dialog"
-        aria-labelledby="productDetailsModal-<%= order._id %>"
+        aria-labelledby="productDetailsModal-<%= order.customOrderId %>"
         aria-hidden="true"
       >
         <div
@@ -305,7 +305,7 @@
         >
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="productDetailsModal-<%= order._id %>">
+              <h5 class="modal-title" id="productDetailsModal-<%= order.customOrderId %>">
                 Product Details
               </h5>
               <button
@@ -353,13 +353,13 @@
                         Completed
                       </button>
                       <form
-                        action="/orders/return-product/<%= order._id %>/<%= product.product._id %>"
+                        action="/orders/return-product/<%= order.customOrderId %>/<%= product.product._id %>"
                         method="POST"
                       >
                         <!-- <button
                           type="button"
                           class="btn btn-warning"
-                          onclick="confirmReturnProduct('<%= order._id %>', '<%= product.product._id %>')"
+                          onclick="confirmReturnProduct('<%= order.customOrderId %>', '<%= product.product._id %>')"
                         >
                           Return Product
                         </button> -->
@@ -381,13 +381,13 @@
                         Pending
                       </button>
                       <form
-                        action="/orders/cancel-product/<%= order._id %>/<%= product.product._id %>"
+                        action="/orders/cancel-product/<%= order.customOrderId %>/<%= product.product._id %>"
                         method="POST"
                       >
                         <button
                           type="button"
                           class="btn btn-danger"
-                          onclick="confirmCancelProduct('<%= order._id %>', '<%= product.product._id %>')"
+                          onclick="confirmCancelProduct('<%= order.customOrderId %>', '<%= product.product._id %>')"
                         >
                           Cancel Product
                         </button>
@@ -414,10 +414,10 @@
       <% }); %> <% orders.forEach(order => { %>
       <div
         class="modal fade"
-        id="priceBreakdownModal-<%= order._id %>"
+        id="priceBreakdownModal-<%= order.customOrderId %>"
         tabindex="-1"
         role="dialog"
-        aria-labelledby="priceBreakdownModal-<%= order._id %>"
+        aria-labelledby="priceBreakdownModal-<%= order.customOrderId %>"
         aria-hidden="true"
       >
         <div
@@ -426,7 +426,7 @@
         >
           <div class="modal-content" style="width: max-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="priceBreakdownModal-<%= order._id %>">
+              <h5 class="modal-title" id="priceBreakdownModal-<%= order.customOrderId %>">
                 Price Breakdown
               </h5>
               <button

@@ -5,10 +5,10 @@ const User = require("../../models/userModel");
 //function to change order status
 const changeOrderStatus = async (req, res) => {
   try {
-    const { orderId } = req.body;
+    const { customOrderId } = req.body; // Use customOrderId
     const newStatus = "completed"; // Admin can only set to completed
 
-    const order = await Order.findById(orderId);
+    const order = await Order.findOne({ customOrderId }); // Find by customOrderId
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
@@ -36,17 +36,17 @@ const changeOrderStatus = async (req, res) => {
       .status(200)
       .json({ message: "Order status updated successfully to completed" });
   } catch (err) {
-    console.error("Error updating order status", { error: err, orderId });
+    console.error("Error updating order status", { error: err, customOrderId });
     res.status(500).send("Internal Server Error");
   }
 };
 
 //function for cancel the order
 const cancelOrder = async (req, res) => {
-  const { orderId } = req.params;
+  const { customOrderId } = req.params; // Use customOrderId
 
   try {
-    const order = await Order.findById(orderId);
+    const order = await Order.findOne({ customOrderId }); // Find by customOrderId
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }

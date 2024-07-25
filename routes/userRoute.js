@@ -235,6 +235,7 @@ router.post(
   orderController.placeOrder
 );
 router.get(
+  // "/set-activeorder/:id",
   "/set-activeorder/:id",
   isAuth,
   checkUserStatus,
@@ -265,14 +266,15 @@ router.get(
   orderController.renderOrderListPage
 );
 router.post(
-  "/orders/cancel/:id",
+  // "/orders/cancel/:id",
+  "/orders/cancel/:customOrderId",
   isAuth,
   checkUserStatus,
   orderController.cancelOrder
 );
 
 router.post(
-  "/orders/cancel-product/:orderId/:productId",
+  "/orders/cancel-product/:customOrderId/:productId",
   isAuth,
   checkUserStatus,
   orderController.cancelProduct
@@ -290,11 +292,11 @@ router.post(
 // router.post(
 //   "/create-order",
 //   isAuth,
-//   checkUserStatus,
+//   checkUserStatus, 
 //   orderController.createorder
 // );
 // router.get(
-//   "/orders/:orderId/invoice",
+//   "/orders/:customOrderId/invoice",
 //   isAuth,
 //   checkUserStatus,
 //   orderController.invoice

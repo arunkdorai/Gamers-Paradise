@@ -148,16 +148,16 @@
             <% for(let i=0; i< order.length ; i++) { %>
               <tr>
                 <td>
-                  <%= order[i]._id %>
+                  <%= order[i].customOrderId %>
                 </td>
     
                   <td>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productModal_<%= order[i]._id %>"  style="background-color: #552FA8; color: white;">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productModal_<%= order[i].customOrderId %>"  style="background-color: #552FA8; color: white;">
                       Product
                     </button>
                     
                     <!-- Modal for displaying product details -->
-                    <div class="modal fade" id="productModal_<%= order[i]._id %>" tabindex="-1" role="dialog" aria-labelledby="productModalLabel" aria-hidden="true">
+                    <div class="modal fade" id="productModal_<%= order[i].customOrderId %>" tabindex="-1" role="dialog" aria-labelledby="productModalLabel" aria-hidden="true">
                       <div class="modal-dialog modal-lg" role="document">
                         <div class="modal-content">
                           <div class="modal-header">
@@ -186,7 +186,7 @@
                                     <td><%= order[i].products[j].status %></td>
                         <td>
                             <% if (order[i].products[j].status === 'pending') { %>
-                              <button class="btn btn-danger cancel-product" data-order-id="<%= order[i]._id %>" data-product-id="<%= order[i].products[j].product._id %>">Cancel Product</button>
+                              <button class="btn btn-danger cancel-product" data-order-id="<%= order[i].customOrderId %>" data-product-id="<%= order[i].products[j].product._id %>">Cancel Product</button>
                             <% } else if (order[i].products[j].status === 'completed') { %>
                                 <button class="btn btn-success" disabled>Delivered</button>
                             <% } else if (order[i].products[j].status === 'returned') { %>
@@ -194,7 +194,7 @@
                             <% } else if (order[i].products[j].status === 'cancelled') { %>
                             <button class="btn btn-secondary" disabled>Product Cancelled</button>
                             <% } else if (order[i].products[j].status === 'returnrequest') { %>
-                              <button class="btn btn-secondary" disabled>requsted for Return</button>
+                              <button class="btn btn-secondary" disabled>requested for Return</button>
                               <% } else if (order[i].products[j].status === 'paymentpending') { %>
                                 <button class="btn btn-secondary" disabled>payment pending</button>
                                 
@@ -202,7 +202,7 @@
                         </td>
                         <td>
                           <% if (order[i].products[j].status === 'returnrequest') { %>
-                            <button class="btn btn-danger return-product" data-order-id="<%= order[i]._id %>" data-product-id="<%= order[i].products[j].product._id %>">Return Product</button>
+                            <button class="btn btn-danger return-product" data-order-id="<%= order[i].customOrderId %>" data-product-id="<%= order[i].products[j].product._id %>">Return Product</button>
                         <% } %>
                                   </tr>
                                 <% } %>
@@ -226,7 +226,7 @@
                 <td>
                   <% if (order[i].status === 'pending') { %>
                     <!-- Show dropdown only if current status is 'pending' -->
-                    <select name="status" class="order-status" data-order-id="<%= order[i]._id %>" onchange="changeStatus(this)">
+                    <select name="status" class="order-status" data-order-id="<%= order[i].customOrderId %>" onchange="changeStatus(this)">
                       <option value="pending" <% if (order[i].status === 'pending') { %>selected<% } %>>Pending</option>
                       <option value="completed">Completed</option>
                     </select>
@@ -252,7 +252,7 @@
                 
                 <td>
                   <% if(order[i].status == 'pending') { %>
-                    <button type="button" class="btn btn-danger cancel-order" data-order-id="<%= order[i]._id %>">Cancel Order</button>
+                    <button type="button" class="btn btn-danger cancel-order" data-order-id="<%= order[i].customOrderId %>">Cancel Order</button>
                   <% } else if(order[i].status == 'completed') { %>
                     <span class="text-success">Order Completed</span>
                   <% }else if(order[i].status == 'returned'){ %>
@@ -265,7 +265,7 @@
                 </td>
                 <td>
                 <% if (order[i].status === 'returnrequest') { %>
-                  <button class="btn btn-danger return-order" data-order-id="<%= order[i]._id %>">Return Order</button>
+                  <button class="btn btn-danger return-order" data-order-id="<%= order[i].customOrderId %>">Return Order</button>
               <% } %>
               </td>
               </tr>
@@ -289,8 +289,8 @@
   <script>
        // SweetAlert2 for canceling a product
        document.querySelectorAll('.cancel-product').forEach(button => {
-  button.addEventListener('click', async function () {
-    const orderId = this.dataset.orderId;
+    button.addEventListener('click', async function () {
+    const orderId = this.dataset.customOrderId ;
     const productId = this.dataset.productId;
 
     Swal.fire({
@@ -343,7 +343,7 @@
 });
 document.querySelectorAll('.return-product').forEach(button => {
   button.addEventListener('click', async function() {
-    const orderId = this.dataset.orderId;
+    const orderId = this.dataset.customOrderId ;
     const productId = this.dataset.productId;
 
     Swal.fire({
@@ -397,7 +397,7 @@ document.querySelectorAll('.return-product').forEach(button => {
 
 document.querySelectorAll('.return-order').forEach(button => {
   button.addEventListener('click', async function() {
-    const orderId = this.dataset.orderId;
+    const orderId = this.dataset.customOrderId ;
 
     Swal.fire({
       title: 'Are you sure?',
@@ -446,7 +446,7 @@ document.querySelectorAll('.return-order').forEach(button => {
 
 
 function changeStatus(element) {
-  const orderId = element.dataset.orderId;
+  const orderId = element.dataset.customOrderId ;
   const newStatus = element.value;
   if (newStatus === 'completed') {
     fetch(`/admin/changeOrderStatus`, {
@@ -497,7 +497,7 @@ function changeStatus(element) {
 
   document.querySelectorAll('.cancel-order').forEach(button => {
   button.addEventListener('click', async function() {
-    const orderId = this.dataset.orderId;
+    const orderId = this.dataset.customOrderId;
 
     Swal.fire({
       title: 'Are you sure?',

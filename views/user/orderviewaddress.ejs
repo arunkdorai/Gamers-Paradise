@@ -92,14 +92,14 @@
               
               <% if (address.status) { %>
               <a
-                href="/set-activeorder/<%= address._id %>?status=inactive"
+                href="/set-activeorder/<%= address._id %>"
                 class="btn btn-success"
               >
                 <i class="fas fa-check"></i> Default
               </a>
               <% } else { %>
               <a
-                href="/set-activeorder/<%= address._id %>?status=active"
+                href="/set-activeorder/<%= address._id %>"
                 class="btn btn-secondary"
               >
                 <i class="fas fa-times"></i> Make default
