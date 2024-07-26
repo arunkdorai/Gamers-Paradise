@@ -164,7 +164,7 @@
           </p>
         </div>
       </div>
-      <p id="cashOnDeliveryError" style="color: red;" hidden>Cash on Delivery is not available for orders above ₹50000.</p>
+      <p id="cashOnDeliveryError" style="color: red;" hidden>Cash on Delivery is not available for orders above ₹100000.</p>
       <div class="row mt-5">
         <div class="col-md-6">
           <h2>Payment Method</h2>
@@ -487,6 +487,7 @@ document.addEventListener("DOMContentLoaded", function () {
         color: '#bca374',
       },
     };
+  });
 // Function to process the payment
   function processPayment(paymentResponse) {
         // Send the payment details to the server for order processing

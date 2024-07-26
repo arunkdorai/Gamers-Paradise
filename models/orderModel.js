@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  customOrderId: { type: String, unique: true, required: true },
   products: [
     {
       product: {
@@ -68,6 +69,13 @@ orderSchema.pre("save", function (next) {
   this.updatedAt = new Date();
   next();
 });
+
+// Function to generate a unique order ID
+orderSchema.statics.generateOrderId = async function () {
+  const orderCount = await this.countDocuments();
+  const orderId = `ORD-${orderCount + 1}-${Date.now()}`;
+  return orderId;
+};
 
 const Order = mongoose.model("Order", orderSchema);
 module.exports = Order;

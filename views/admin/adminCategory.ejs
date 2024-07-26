@@ -140,6 +140,7 @@
               <th>Name</th>
               <th>Status</th>
               <th>Edit</th>
+              <th>Delete</th>
             </tr>
           </thead>
           <tbody>
@@ -195,6 +196,10 @@
                     </div>
                   </div>
                   <!-- <a href="" class="btn btn-secondary">Edit</a> -->
+                </td>
+                <td>
+                  <a href="/admin/categoryDelete?id=<%= data[i]._id %>" class="btn btn-danger"
+                    onclick="confirmAndRedirectDelete('<%= data[i]._id %>',event)">Delete</a>
                 </td>
               </tr>
               <%} %>
@@ -269,6 +274,19 @@
 
       if (result.isConfirmed) {
         window.location.href = "/admin/categoryStatus?id=" + userId;
+      }
+    }
+
+    async function confirmAndRedirectDelete(userId, event) {
+      event.preventDefault(); // Prevent the default behavior
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You want to delete the category",
+        icon: "warning",
+        showCancelButton: true
+      });
+      if (result.isConfirmed) {
+        window.location.href = "/admin/categoryDelete?id=" + userId;
       }
     }
   </script>

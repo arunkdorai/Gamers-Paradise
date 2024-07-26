@@ -156,7 +156,7 @@
           <tr>
             <th>Order ID</th>
             <th>Date</th>
-            <th>Amount paid</th>
+            <th>Amount Paid</th>
             <th>Payment Method</th>
             <th>Address</th>
             <th>Status</th>
@@ -167,7 +167,7 @@
         <tbody>
           <% orders.forEach(order => { %>
           <tr>
-            <td><%= order._id %></td>
+            <td><%= order.customOrderId %></td>
             <td><%= order.createdAt.toDateString() %></td>
             <td><%= order.totalPrice %></td>
             <td><%= order.paymentMethod %></td>
@@ -185,7 +185,7 @@
               <button
                 class="btn btn-primary"
                 data-toggle="modal"
-                data-target="#priceBreakdownModal-<%= order._id %>"
+                data-target="#priceBreakdownModal-<%= order.customOrderId %>"
               >
                 View Price
                 <details></details>
@@ -195,7 +195,7 @@
               <button
                 class="btn btn-primary"
                 data-toggle="modal"
-                data-target="#productDetailsModal-<%= order._id %>"
+                data-target="#productDetailsModal-<%= order.customOrderId %>"
               >
                 View Products
               </button>
@@ -203,14 +203,14 @@
               <br />
               <% if (order.status == 'completed') { %>
               <form
-                action="/orders/return/<%= order._id %>"
+                action="/orders/return/<%= order.customOrderId %>"
                 method="POST"
                 class="d-inline"
               >
                 <!-- <button
                   type="button"
                   class="btn btn-warning"
-                  onclick="confirmReturnOrder('<%= order._id %>')"
+                  onclick="confirmReturnOrder('<%= order.customOrderId %>')"
                 >
                   Return Order
                 </button> -->
@@ -225,14 +225,14 @@
               <br />
               <% } else if (order.status == 'pending') { %>
               <form
-                action="/orders/cancel/<%= order._id %>"
+                action="/orders/cancel/<%= order.customOrderId %>"
                 method="POST"
                 class="d-inline"
               >
                 <button
                   type="button"
                   class="btn btn-warning"
-                  onclick="confirmCancelOrder('<%= order._id %>')"
+                  onclick="confirmCancelOrder('<%= order.customOrderId %>')"
                 >
                   Cancel Order
                 </button>
@@ -253,7 +253,7 @@
               <br />
               <% } else if (order.status == 'paymentpending') { %>
               <form action="/repayment/process" method="POST" class="d-inline">
-                <input type="hidden" name="orderId" value="<%= order._id %>" />
+                <input type="hidden" name="orderId" value="<%= order.customOrderId %>" />
                 <input
                   type="hidden"
                   name="amount"
@@ -266,11 +266,11 @@
                 <br />
               </form>
               <form
-                action="/orderAbort/<%= order._id %>"
+                action="/orderAbort/<%= order.customOrderId %>"
                 method="POST"
                 class="d-inline"
               >
-                <input type="hidden" name="orderId" value="<%= order._id %>" />
+                <input type="hidden" name="orderId" value="<%= order.customOrderId %>" />
                 <input
                   type="hidden"
                   name="amount"
@@ -281,7 +281,7 @@
                 <br />
               </form>
               <% } %> <% if (order.status === 'completed') { %>
-              <!-- <a href="/orders/<%= order._id %>/invoice" class="btn btn-primary"
+              <!-- <a href="/orders/<%= order.customOrderId %>/invoice" class="btn btn-primary"
                 >Invoice</a
               > -->
               <% } %>
@@ -293,10 +293,10 @@
       <% orders.forEach(order => { %>
       <div
         class="modal fade"
-        id="productDetailsModal-<%= order._id %>"
+        id="productDetailsModal-<%= order.customOrderId %>"
         tabindex="-1"
         role="dialog"
-        aria-labelledby="productDetailsModal-<%= order._id %>"
+        aria-labelledby="productDetailsModal-<%= order.customOrderId %>"
         aria-hidden="true"
       >
         <div
@@ -305,7 +305,7 @@
         >
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="productDetailsModal-<%= order._id %>">
+              <h5 class="modal-title" id="productDetailsModal-<%= order.customOrderId %>">
                 Product Details
               </h5>
               <button
@@ -353,13 +353,13 @@
                         Completed
                       </button>
                       <form
-                        action="/orders/return-product/<%= order._id %>/<%= product.product._id %>"
+                        action="/orders/return-product/<%= order.customOrderId %>/<%= product.product._id %>"
                         method="POST"
                       >
                         <!-- <button
                           type="button"
                           class="btn btn-warning"
-                          onclick="confirmReturnProduct('<%= order._id %>', '<%= product.product._id %>')"
+                          onclick="confirmReturnProduct('<%= order.customOrderId %>', '<%= product.product._id %>')"
                         >
                           Return Product
                         </button> -->
@@ -381,13 +381,13 @@
                         Pending
                       </button>
                       <form
-                        action="/orders/cancel-product/<%= order._id %>/<%= product.product._id %>"
+                        action="/orders/cancel-product/<%= order.customOrderId %>/<%= product.product._id %>"
                         method="POST"
                       >
                         <button
                           type="button"
                           class="btn btn-danger"
-                          onclick="confirmCancelProduct('<%= order._id %>', '<%= product.product._id %>')"
+                          onclick="confirmCancelProduct('<%= order.customOrderId %>', '<%= product.product._id %>')"
                         >
                           Cancel Product
                         </button>
@@ -414,10 +414,10 @@
       <% }); %> <% orders.forEach(order => { %>
       <div
         class="modal fade"
-        id="priceBreakdownModal-<%= order._id %>"
+        id="priceBreakdownModal-<%= order.customOrderId %>"
         tabindex="-1"
         role="dialog"
-        aria-labelledby="priceBreakdownModal-<%= order._id %>"
+        aria-labelledby="priceBreakdownModal-<%= order.customOrderId %>"
         aria-hidden="true"
       >
         <div
@@ -426,7 +426,7 @@
         >
           <div class="modal-content" style="width: max-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="priceBreakdownModal-<%= order._id %>">
+              <h5 class="modal-title" id="priceBreakdownModal-<%= order.customOrderId %>">
                 Price Breakdown
               </h5>
               <button
@@ -451,7 +451,7 @@
                     <td style="text-align: left">Subtotal</td>
                     <td style="text-align: left">
                       <%=
-                      ((order.grandTotalPrice-order.reducedPrice-order.returnedPrice-45-order.discountedAmount)-((order.grandTotalPrice-order.reducedPrice-order.returnedPrice-45)/21)).toFixed(2)
+                      ((order.grandTotalPrice || 0) - (order.reducedPrice || 0) - (order.returnedPrice || 0) - 45 - (order.discountedAmount || 0) - (((order.grandTotalPrice || 0) - (order.reducedPrice || 0) - (order.returnedPrice || 0) - 45) / 21)).toFixed(2)
                       %>
                     </td>
                   </tr>
@@ -463,7 +463,7 @@
                     <td style="text-align: left">Tax</td>
                     <td style="text-align: left">
                       <%=
-                      ((order.grandTotalPrice-order.reducedPrice-order.returnedPrice-45)/21).toFixed(2)
+                      (((order.grandTotalPrice || 0) - (order.reducedPrice || 0) - (order.returnedPrice || 0) - 45) / 21).toFixed(2)
                       %>
                     </td>
                   </tr>
@@ -471,7 +471,7 @@
                   <tr>
                     <th style="text-align: left">Discount Amount</th>
                     <th style="text-align: left">
-                      <%= order.discountedAmount %>
+                      <%= order.discountedAmount || 0 %>
                     </th>
                   </tr>
                   <% } %> <% if(order.paymentMethod == "pay_by_wallet") { %>
@@ -486,28 +486,29 @@
                     <th style="text-align: left">
                       <%= "For the order, used wallet amount" %>
                     </th>
-                    <th style="text-align: left"><%= order.walletAmount %></th>
+                    <th style="text-align: left"><%= order.walletAmount || 0 %></th>
                   </tr>
-                  <% } %> <% if(order.reducedPrice||order.returnedPrice) { %>
+                  <% } %> <% if(order.reducedPrice || order.returnedPrice) { %>
                   <tr>
                     <th style="text-align: left">returned/cancelled Amount</th>
                     <th style="text-align: left">
-                      <%= order.reducedPrice+order.returnedPrice %>
+                      <%= (order.reducedPrice || 0) + (order.returnedPrice || 0) %>
                     </th>
                   </tr>
                   <% } %>
-
+            
                   <tr>
                     <th style="text-align: left">Total</th>
                     <th style="text-align: left">
                       <%=
-                      (order.grandTotalPrice-order.reducedPrice-order.returnedPrice-order.discountedAmount).toFixed(2)
+                      ((order.grandTotalPrice || 0) - (order.reducedPrice || 0) - (order.returnedPrice || 0) - (order.discountedAmount || 0)).toFixed(2)
                       %>
                     </th>
                   </tr>
                 </tbody>
               </table>
             </div>
+            
             <div class="modal-footer">
               <button
                 type="button"
@@ -639,75 +640,6 @@
           }
         });
       }
-    </script>
-    <script>
-
-      document.addEventListener("DOMContentLoaded", function () {
-        const orderId = this.querySelector('input[name="orderId"]').value;
-        const amount = this.querySelector('input[name="amount"]').value * 100; // Convert amount to paise
-        console.log("amount:", amount);
-
-        document
-          .querySelectorAll('form[action="/repayment/process"]')
-          .forEach((form) => {
-            form.addEventListener("submit", function (event) {
-              event.preventDefault(); // Prevent the form from submitting normally
-
-              const orderId = this.querySelector('input[name="orderId"]').value;
-              const amount =
-                this.querySelector('input[name="amount"]').value * 100; // Convert amount to paise
-              console.log("amount:", amount);
-
-              fetch("/repayment/process", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ amount, orderId }),
-              })
-                .then((response) => response.json())
-                .then((data) => {
-                  const options = {
-                    amount: amount,
-                    currency: data.currency,
-                    order_id: data.orderId,
-                    name: "Gamers Paradise",
-                    description: "Order Payment",
-                    image: "/images/logo.png",
-                    handler: function (response) {
-                      handlePaymentSuccess(response, orderId);
-                    },
-                  };
-
-                })
-                .catch((error) => {
-                  console.error("Error fetching order details:", error);
-                });
-            });
-          });
-
-        function handlePaymentSuccess(response, orderId) {
-          Swal.fire({
-            icon: "success",
-            title: "Payment Successful",
-            text: "Your payment has been successfully processed!",
-          }).then(() => {
-            fetch(`/repayment/success`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(response),
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                console.log(data);
-              })
-              .catch((error) =>
-                console.error("Payment success handler error:", error)
-              );
-          });
-        }
     </script>
   </body>
 </html>

@@ -79,6 +79,18 @@ const changeStatus = async (req, res) => {
   }
 };
 
+//function to delete category status
+const deleteCategory = async (req, res) => {
+  try {
+    let categoryData = await category.findByIdAndDelete(req.query.id );
+    res.redirect("/admin/Category");
+  } catch (e) {
+    console.log("error in the deleteCategory : ", e);
+    res.redirect("/admin/error");
+  }
+};
+
+
 //function to edit category
 const editCategory = async (req, res) => {
   try {
@@ -115,4 +127,5 @@ module.exports = {
   getCategory,
   changeStatus,
   editCategory,
+  deleteCategory,
 };

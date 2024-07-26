@@ -41,6 +41,12 @@ router.get(
   adminAuth.isLogin,
   categoryManagement.changeStatus
 );
+
+router.get(
+  "/categoryDelete",
+  adminAuth.isLogin,
+  categoryManagement.deleteCategory
+);
 router.post("/editCategory", categoryManagement.editCategory);
 router.post("/category", categoryManagement.addCategory);
 
@@ -53,6 +59,7 @@ router.post(
   productManagement.addProduct
 );
 router.get("/productstatus", adminAuth.isLogin, productManagement.changeStatus);
+router.get("/productDelete", adminAuth.isLogin, productManagement.deleteProduct);
 router.post(
   "/editProduct/:id",
   storage.array("images", 5),
@@ -72,12 +79,12 @@ router.post(
 );
 router.get("/logout", adminController.adminLogout);
 router.post(
-  "/cancelOrder/:orderId",
+  "/cancelOrder/:customOrderId",
   adminAuth.isLogin,
   orderManagement.cancelOrder
 );
 router.post(
-  "/orders/cancel-product/:orderId/:productId",
+  "/orders/cancel-product/:customOrderId/:productId",
   orderManagement.cancelProductAsAdmin
 );
 
