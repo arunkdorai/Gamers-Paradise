@@ -14,6 +14,8 @@ const orderSchema = new mongoose.Schema({
         type: String,
         enum: [
           "pending",
+          "Dispatched",
+          "In Transit",
           "completed",
           "cancelled",
           "returned",
@@ -45,6 +47,8 @@ const orderSchema = new mongoose.Schema({
     type: String,
     enum: [
       "pending",
+      "Dispatched",
+      "In Transit",
       "completed",
       "cancelled",
       "returned",

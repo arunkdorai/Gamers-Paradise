@@ -6,26 +6,27 @@ const User = require("../../models/userModel");
 const changeOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.body; // Use customOrderId
-    const newStatus = "completed"; // Admin can only set to completed
+    const newStatus = req.body.newStatus; // Admin can only set to completed
 
     const order = await Order.findOne({ customOrderId:orderId }); // Find by customOrderId
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    // Check if the current order status is 'pending'
-    if (order.status !== "pending") {
+    // Check if the current order status is 'pending' or 'dispatched' or 'in transit'
+    if (order.status !== "pending"&& order.status !== "Dispatched" && order.status !== "In Transit") {
       return res.status(400).json({
         message:
-          `Order status can only be changed from 'pending' to 'completed'`,
+          "Order status can only be changed from 'pending' to 'completed'",
       });
     }
+
     // Set new status if the validation passes
     order.status = newStatus;
 
     order.products.forEach((product) => {
-      if (product.status === "pending") {
-        product.status = "completed";
+      if (product.status === "pending"||product.status ==="Dispatched"||product.status ==="In Transit") {
+        product.status = newStatus;
       }
     });
     await order.save();
@@ -65,7 +66,7 @@ const cancelOrder = async (req, res) => {
     order.status = "cancelled";
 
     order.products.forEach((product) => {
-      if (product.status === "pending") {
+      if (product.status === "pending"|| product.status ==="Dispatched" || product.status ==="In Transit") {
         product.status = "cancelled";
       }
     });
@@ -84,9 +85,10 @@ const cancelOrder = async (req, res) => {
     );
 
     if (req.session.userData) {
-      const userId = req.session.userData._id;
-      const fullName = req.session.userData.fullname;
-      const orders = await Order.find({ user: userId })
+      const user = await User.findById(order.user);
+      // const userId = req.session.userData._id;
+      // const fullName = req.session.userData.fullname;
+      const orders = await Order.find({ user: user._id })
         .populate("address")
         .populate("products.product")
         .sort({ createdAt: -1 });
@@ -141,11 +143,12 @@ const getOrdersWithPagination = async (req, res) => {
 const cancelProductAsAdmin = async (req, res) => {
   try {
     const order = await Order.findById(req.params.orderId);
+    const productId=req.params.productId
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
     }
 
-    if (order.status !== "pending") {
+    if (order.status !=="pending" && order.status !=="Dispatched" && order.status !=="In Transit") {
       return res
         .status(400)
         .json({ error: "Cannot cancel product for this order" });
