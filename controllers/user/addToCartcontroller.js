@@ -62,34 +62,33 @@ const addToCart = async (req, res) => {
   }
 };
 
-//function for remove product from cart
 const removeFromCart = async (req, res) => {
   try {
-      const productId = req.params.productId; // Assuming the product ID is passed as a URL parameter
-      const userId = req.session.userData._id; // Assuming you have the user ID from the request      
+    const productId = req.params.productId; // Assuming the product ID is passed as a URL parameter
+    const userId = req.session.userData._id; // Assuming you have the user ID from the request
 
-      // Find the cart for the user
-      let cart = await Cart.findOne({ userId: userId });
+    // Find the cart for the user
+    let cart = await Cart.findOne({ userId: userId });
 
-      if (!cart) {
-        return res.status(404).json({ message: "Cart not found" });
-      }
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
 
-    // Find the index of the product in the cart
-    const cartItemIndex = cart.cartItems.findIndex(item => item.product.toString() === productId);
+    // Check for the product in the cart items
+    const productInCart = cart.cartItems.some(item => item.product.toString() === productId);
 
-    if (cartItemIndex > -1) {
-      // Remove the product from the cart
-      cart.cartItems.splice(cartItemIndex, 1);
-
-      // Save the updated cart
-      await cart.save();
-
-
-      return res.redirect("/add-to-cart");
-    } else {
+    if (!productInCart) {
       return res.status(404).json({ message: "Product not found in cart" });
     }
+
+    // Update the cart atomically
+    const updatedCart = await Cart.findOneAndUpdate(
+      { userId: userId },
+      { $pull: { cartItems: { product: productId } } },
+      { new: true }
+    );
+
+    return res.redirect("/add-to-cart");
   } catch (error) {
     console.error("Error removing product from cart:", error);
     res.status(500).json({ message: "Internal Server Error" });
