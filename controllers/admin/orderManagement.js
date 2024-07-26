@@ -9,7 +9,6 @@ const changeOrderStatus = async (req, res) => {
     const newStatus = "completed"; // Admin can only set to completed
 
     const order = await Order.findOne({ customOrderId:orderId }); // Find by customOrderId
-    console.log("order", orderId)
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
@@ -30,7 +29,6 @@ const changeOrderStatus = async (req, res) => {
       }
     });
     await order.save();
-    console.log("third")
 
     res
       .status(200)
