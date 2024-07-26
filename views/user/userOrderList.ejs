@@ -156,8 +156,6 @@
           <tr>
             <th>Order ID</th>
             <th>Date</th>
-            <th>Amount Paid</th>
-            <th>Payment Method</th>
             <th>Address</th>
             <th>Status</th>
             <th>Price Breakdown</th>
@@ -169,16 +167,16 @@
           <tr>
             <td><%= order.customOrderId %></td>
             <td><%= order.createdAt.toDateString() %></td>
-            <td><%= order.totalPrice %></td>
-            <td><%= order.paymentMethod %></td>
             <td><%= order.address.address %></td>
             <td>
               <% if (order.status === 'completed') { %>Completed<% } else if
               (order.status == 'returned') { %>Returned<% } else if
               (order.status === 'cancelled') { %>Cancelled<% } else if
               (order.status == 'returnrequest') { %>Requested for return<% }
-              else if (order.status == 'paymentpending') { %>Payment pending<% }
-              else { %>Pending<% } %>
+              else if (order.status == 'paymentpending') { %>Payment pending <% }
+              else if (order.status == 'pending'){ %>Pending<% } else { %><%= order.status %>
+                <% } %>
+
             </td>
             <td>
               <!-- Add the new button here -->
@@ -223,7 +221,7 @@
               </button>
               <br />
               <br />
-              <% } else if (order.status == 'pending') { %>
+              <% } else if (order.status == 'pending'|| order.status == 'Dispatched'|| order.status == 'In Transit') { %>
               <form
                 action="/orders/cancel/<%= order.customOrderId %>"
                 method="POST"
@@ -378,7 +376,7 @@
                       </button> -->
                       <% } else { %>
                       <button type="button" class="btn btn-primary" disabled>
-                        Pending
+                        <%=order.status %>
                       </button>
                       <form
                         action="/orders/cancel-product/<%= order.customOrderId %>/<%= product.product._id %>"
@@ -502,6 +500,14 @@
                     <th style="text-align: left">
                       <%=
                       ((order.grandTotalPrice || 0) - (order.reducedPrice || 0) - (order.returnedPrice || 0) - (order.discountedAmount || 0)).toFixed(2)
+                      %>
+                    </th>
+                  </tr>
+                  <tr>
+                    <th style="text-align: left">Payment Method</th>
+                    <th style="text-align: left">
+                      <%=
+                      (order.paymentMethod)
                       %>
                     </th>
                   </tr>
