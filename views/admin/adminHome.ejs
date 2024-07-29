@@ -171,6 +171,14 @@
               <i class="icon-paper-and-pencil"></i>Order</a
             >
           </li>
+          <li>
+            <a href="/admin/coupons">
+              <i class="icon-three-cells"></i>Coupons</a
+            >
+          </li>
+          <li>
+            <a href="/admin/sales"> <i class="icon-info"></i>Sales Report</a>
+          </li>
         </ul>
       </nav>
       <!-- Sidebar Navigation end-->
@@ -180,7 +188,104 @@
             <h2 class="h5 no-margin-bottom">Dashboard</h2>
           </div>
         </div>
-        
+        <div class="container mt-5">
+          <h1 class="text-center">Admin Dashboard</h1>
+          <div class="row mt-4">
+            <div class="col-md-4 fade-in">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Total Users</h5>
+                  <p class="card-text"><%= userCount %></p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 fade-in">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Total Products</h5>
+                  <p class="card-text"><%= productCount %></p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 fade-in">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Total Orders</h5>
+                  <p class="card-text"><%= orderCount %></p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 fade-in">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Cash on Delivery Orders</h5>
+                  <p class="card-text"><%= cashOnDeliveryOrderCount %></p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 fade-in">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Online Payment Orders</h5>
+                  <p class="card-text"><%= onlinePaymentOrderCount %></p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 fade-in">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Wallet Payment Orders</h5>
+                  <p class="card-text"><%= walletPaymentOrderCount %></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mt-4">
+            <form action="/admin/adminHome" method="get">
+              <select name="period" class="form-control" onchange="this.form.submit()">
+                <option value="daily" <%= period === 'daily' ? 'selected' : '' %>>Daily</option>
+                <option value="weekly" <%= period === 'weekly' ? 'selected' : '' %>>Weekly</option>
+                <option value="monthly" <%= period === 'monthly' ? 'selected' : '' %>>Monthly</option>
+                <option value="yearly" <%= period === 'yearly' ? 'selected' : '' %>>Yearly</option>
+              </select>
+            </form>
+            <div class="col-md-4 fade-in">
+             
+              <h3>Best Selling Products</h3>
+             
+              <ul class="list-group">
+                <% bestSellingProducts.forEach(product => { %>
+                <li class="list-group-item">
+                  <%= product.product %> - Sold: <%= product.quantitySold %>
+                </li>
+                <% }) %>
+              </ul>
+            </div>
+            <div class="col-md-4 fade-in">
+              <h3>Best Selling Categories</h3>
+              <ul class="list-group">
+                <% bestSellingCategories.forEach(category => { %>
+                <li class="list-group-item">
+                  <%= category.category %> - Sold: <%= category.quantitySold %>
+                </li>
+                <% }) %>
+              </ul>
+            </div>
+          </div>
+          <div class="row mt-4">
+            <div class="col-md-6">
+              <div class="chart-container">
+                <canvas id="productChart"></canvas>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="chart-container">
+                <canvas id="categoryChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
         <footer class="footer">
           <div class="footer__block block no-margin-bottom"></div>
         </footer>
@@ -195,6 +300,106 @@
       <script src="js/charts-home.js"></script>
       <script src="js/front.js"></script>
       
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          const productChartCtx = document
+            .getElementById("productChart")
+            .getContext("2d");
+          const categoryChartCtx = document
+            .getElementById("categoryChart")
+            .getContext("2d");
+      
+          const productChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: "Quantity Sold",
+                },
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: "Product",
+                },
+              },
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: "Best Selling Products",
+              },
+            },
+            barPercentage: 0.8,
+            categoryPercentage: 0.6,
+          };
+      
+          const categoryChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: "Quantity Sold",
+                },
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: "Category",
+                },
+              },
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: "Best Selling Categories",
+              },
+            },
+            barPercentage: 0.8,
+            categoryPercentage: 0.6,
+          };
+      
+          new Chart(productChartCtx, {
+            type: "bar",
+            data: {
+              labels: "<%= JSON.stringify(bestSellingProducts.map(product => product.product)) %>",
+              datasets: [
+                {
+                  label: "Quantity Sold",
+                  data: "<%= JSON.stringify(bestSellingProducts.map(product => product.quantitySold)) %>",
+                  backgroundColor: "rgba(75, 192, 192, 0.6)",
+                  borderColor: "rgba(75, 192, 192, 1)",
+                  borderWidth: 2,
+                },
+              ],
+            },
+            options: productChartOptions,
+          });
+      
+          new Chart(categoryChartCtx, {
+            type: "bar",
+            data: {
+              labels: "<%= JSON.stringify(bestSellingCategories.map(category => category.category)) %>",
+              datasets: [
+                {
+                  label: "Quantity Sold",
+                  data: "<%= JSON.stringify(bestSellingCategories.map(category => category.quantitySold)) %>",
+                  backgroundColor: "rgba(153, 102, 255, 0.6)",
+                  borderColor: "rgba(153, 102, 255, 1)",
+                  borderWidth: 2,
+                },
+              ],
+            },
+            options: categoryChartOptions,
+          });
+        });
+      </script>
  
       </body>
       </html>

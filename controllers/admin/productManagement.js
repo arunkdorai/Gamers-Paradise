@@ -144,6 +144,8 @@ const editProduct = async (req, res) => {
     let updImages = [...exImage];
     const removedImagesPaths = req.body.removeImages ? req.body.removeImages.split(",").filter((path) => path) : [];
 
+    if (files.length > 0) {
+      // Process new uploaded images
     for (const file of files) {
       const resizedImageBuffer = await sharp(file.path)
         .resize(1200, 1200, { fit: 'fill' })
@@ -161,6 +163,8 @@ const editProduct = async (req, res) => {
 
       await fs.unlink(file.path);
     }
+    // Remove the paths of deleted images from the updImages array
+  }
 
     updImages = updImages.filter((img) => !removedImagesPaths.includes(img.path));
 
@@ -177,6 +181,7 @@ const editProduct = async (req, res) => {
         category: selectedCategory ? selectedCategory._id : product.category,
         stock: stock,
         about: about,
+        is_blocked: false,
         image: updImages,
       },
       { new: true }

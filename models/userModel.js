@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Wallet = require("../models/walletModel");
 
 const userSchema = new mongoose.Schema({
   fullname: {
@@ -48,6 +49,8 @@ const userSchema = new mongoose.Schema({
     default: Date.now,
     required: true,
   },
+  usedCoupons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Coupon" }],
+  wallet: { type: mongoose.Schema.Types.ObjectId, ref: "Wallet" },
 });
 
 // Update the updatedAt field before saving the document

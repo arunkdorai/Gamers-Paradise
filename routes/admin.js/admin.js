@@ -7,6 +7,7 @@ const userManagementController = require("../../controllers/admin/userManagement
 const categoryManagement = require("../../controllers/admin/catergoryManagement");
 const productManagement = require("../../controllers/admin/productManagement");
 const orderManagement = require("../../controllers/admin/orderManagement");
+const adminCouponManagement = require("../../controllers/admin/adminCouponManagement");
 
 // Importing the required middleware
 const adminAuth = require("../../middleware/adminAuth");
@@ -87,5 +88,46 @@ router.post(
   "/orders/cancel-product/:customOrderId/:productId",
   orderManagement.cancelProductAsAdmin
 );
+
+// Coupon management routes
+router.get("/coupons", adminAuth.isLogin, adminCouponManagement.getAllCoupons);
+router.post("/coupons", adminAuth.isLogin, adminCouponManagement.createCoupon);
+router.post(
+  "/coupons/:id",
+  adminAuth.isLogin,
+  adminCouponManagement.updateCoupon
+);
+router.get(
+  "/deletecoupons/:id",
+  adminAuth.isLogin,
+  adminCouponManagement.deleteCoupon
+);
+
+// Sales and reporting routes
+router.get("/sales", adminAuth.isLogin, adminController.adminSalesPage);
+router.get(
+  "/salesReport",
+  adminAuth.isLogin,
+  adminController.getSalesReportPage
+);
+router.get(
+  "/salesReport/data",
+  adminAuth.isLogin,
+  adminController.getSalesReportData
+);
+router.get(
+  "/salesReport/download",
+  adminAuth.isLogin,
+  adminController.downloadSalesReportPDF
+);
+
+// Order Details Report
+// router.get("/order-details", adminController.getOrderDetailsReport);
+
+// Product Sales Report
+// router.get("/product-sales", adminController.getProductSalesReport);
+
+// router.get("/error", adminController.errorPage);
+router.get("/data", adminController.getSalesReportData);
 
 module.exports = router; // Exporting the router

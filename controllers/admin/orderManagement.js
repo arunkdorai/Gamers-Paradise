@@ -84,6 +84,56 @@ const cancelOrder = async (req, res) => {
       })
     );
 
+    if (
+      order.paymentMethod !== "cash_on_delivery" &&
+      order.paymentMethod !== "pay_by_wallet"
+    ) {
+      const user = await User.findById(order.user).populate("wallet");
+
+      if (!user || !user.wallet) {
+        return res.status(404).json({ error: "User or wallet not found" });
+      }
+
+      user.wallet.balance = (
+        parseFloat(user.wallet.balance) +
+        parseFloat(order.totalPrice) +
+        (order.walletAmount ? parseFloat(order.walletAmount) : 0) -
+        parseFloat(order.reducedPrice)
+      ).toFixed(2);
+
+      // Add a new transaction to the wallet
+      user.wallet.transactions.push({
+        type: "credit",
+        amount:
+          parseFloat(order.totalPrice) +
+          (order.walletAmount ? parseFloat(order.walletAmount) : 0) -
+          parseFloat(order.reducedPrice),
+        description: `Order ${order._id} cancelled`,
+      });
+
+      // Save the updated wallet
+      await user.wallet.save();
+    } else if (order.paymentMethod == "pay_by_wallet") {
+      const user = await User.findById(order.user).populate("wallet");
+
+      if (!user || !user.wallet) {
+        return res.status(404).json({ error: "User or wallet not found" });
+      }
+
+      user.wallet.balance =
+        user.wallet.balance + order.walletAmount - parseFloat(reducedPrice);
+
+      // Add a new transaction to the wallet
+      user.wallet.transactions.push({
+        type: "credit",
+        amount: order.walletAmount - parseFloat(reducedPrice),
+        description: `Order ${order._id} cancelled`,
+      });
+
+      // Save the updated wallet
+      await user.wallet.save();
+    }
+
     if (req.session.userData) {
       const user = await User.findById(order.user);
       // const userId = req.session.userData._id;
@@ -204,21 +254,204 @@ const cancelProductAsAdmin = async (req, res) => {
       await order.save();
     }
     if (order.paymentMethod !== "cash_on_delivery") {
-      const user = await User.findById(order.user);
+      const user = await User.findById(order.user).populate("wallet");
 
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
+      if (!user || !user.wallet) {
+        return res.status(404).json({ error: "User or wallet not found" });
       }
       {
         order.reducedPrice =
           parseFloat(order.reducedPrice) + parseFloat(reducedPrice);
-        await order.save();
+          order.totalPrice = 0;
+          order;
+          await order.save();
       }
+      user.wallet.balance = (
+        parseFloat(user.wallet.balance) +
+        parseFloat(reducedPrice) +
+        (remainingProducts.length === 0 ? 45 : 0)
+      ).toFixed(2);
+      user.wallet.transactions.push({
+        type: "credit",
+        amount:
+          parseFloat(reducedPrice) + (remainingProducts.length === 0 ? 45 : 0),
+        description: `Order ${order._id} cancelled`,
+      });
+
+      await user.wallet.save();
     }
     res.json({ success: true, message: "Product cancelled successfully" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
+  }
+};
+
+//function for return products which approved by admin in admin side
+const returnProductAsAdmin = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId);
+    const productId = req.params.productId;
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    const productIndex = order.products.findIndex(
+      (p) => p.product.toString() === productId
+    );
+
+    if (productIndex === -1) {
+      return res.status(404).json({ error: "Product not found in the order" });
+    }
+
+    const product = order.products[productIndex];
+    const productObj = await Product.findById(product.product);
+    const productPrice = parseFloat(productObj.price) || 0;
+    const productQuantity = product.quantity;
+
+    if (isNaN(productPrice) || isNaN(productQuantity)) {
+      return res
+        .status(400)
+        .json({ error: "Invalid product price or quantity" });
+    }
+
+    const discountedAmount = order.discountedAmount
+      ? parseFloat(order.discountedAmount)
+      : 0;
+    const totalPrice = parseFloat(order.grandTotalPrice)
+      ? parseFloat(order.grandTotalPrice)
+      : 0;
+    const reducedPrice = calculateReducedPrice(
+      productPrice * productQuantity,
+      discountedAmount,
+      totalPrice
+    );
+
+    const isLastCompleted =
+      order.products.filter(
+        (p) => p.status === "completed" && p.product.toString() !== productId
+      ).length === 0;
+    product.status = "returned";
+
+    const updatedOrder = await order.save();
+
+    productObj.stock += productQuantity;
+    await productObj.save();
+    const remainingProducts = order.products.filter(
+      (p) => p.status !== "returned"
+    );
+    if (remainingProducts.length === 0) {
+      order.status = "returned";
+      await order.save();
+    }
+
+    const user = await User.findById(order.user).populate("wallet");
+    console.log(order.user);
+
+    if (!user || !user.wallet) {
+      return res.status(404).json({ error: "User or wallet not found" });
+    }
+    {
+      order.returnedPrice =
+        parseFloat(order.returnedPrice) + parseFloat(reducedPrice);
+      await order.save();
+    }
+    user.wallet.balance = (
+      parseFloat(user.wallet.balance) +
+      parseFloat(reducedPrice) +
+      (remainingProducts.length === 0 ? 45 : 0)
+    ).toFixed(2);
+    user.wallet.transactions.push({
+      type: "credit",
+      amount:
+        parseFloat(reducedPrice) + (remainingProducts.length === 0 ? 45 : 0),
+      description: `Order ${order._id} returned`,
+    });
+
+    await user.wallet.save();
+
+    res.json({ success: true, message: "Product returned successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+const returnOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId);
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    if (order.status !== "returnrequest") {
+      return res.status(400).json({ error: "Order cannot be returned" });
+    }
+
+    // Retain the product quantities
+    order.products.forEach((product) => {
+      product.quantity = product.quantity;
+    });
+
+    // Set the order status to "returned"
+    order.status = "returned";
+
+    const updateProductStatusPromises = order.products.map(
+      async (productItem) => {
+        if (productItem.status === "completed") {
+          productItem.status = "returned";
+          await productItem.save();
+        }
+      }
+    );
+
+    await order.save();
+    console.log("order", order);
+    // Restore product quantities
+    await Promise.all(
+      order.products.map(async (orderItem) => {
+        const product = await Product.findById(orderItem.product);
+        if (product) {
+          product.stock += orderItem.quantity;
+          await product.save();
+        }
+      })
+    );
+    const user = await User.findById(order.user).populate("wallet");
+
+    if (!user || !user.wallet) {
+      return res.status(404).json({ error: "User or wallet not found" });
+    }
+    const reduceTotal =
+      (parseFloat(order.returnedPrice) ? parseFloat(order.returnedPrice) : 0) +
+      (parseFloat(order.reducedPrice) ? parseFloat(order.reducedPrice) : 0);
+    user.wallet.balance = (
+      parseFloat(user.wallet.balance) +
+      parseFloat(order.grandTotalPrice - order.discountedAmount) -
+      reduceTotal
+    ).toFixed(2);
+
+    // Add a new transaction to the wallet
+    user.wallet.transactions.push({
+      type: "credit",
+      amount:
+        parseFloat(order.grandTotalPrice - order.discountedAmount) -
+        reduceTotal,
+      description: `Order ${order._id} returned`,
+    });
+
+    // Save the updated wallet
+    await user.wallet.save();
+    order.returnedPrice +=
+      parseFloat(order.grandTotalPrice - order.discountedAmount) - reduceTotal;
+    await order.save();
+    console.log("order", order);
+    return res.status(200).redirect("/admin/order");
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -243,6 +476,8 @@ function calculateReducedPrice(price, discountedAmount, totalPrice) {
   return reducedPrice;
 }
 module.exports = {
+  returnOrder,
+  returnProductAsAdmin,
   cancelProductAsAdmin,
   cancelOrder,
   getOrdersWithPagination,

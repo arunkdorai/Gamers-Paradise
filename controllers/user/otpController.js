@@ -343,6 +343,7 @@ const verifyOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
     const userData = req.session.userData;
+    const showTimer = true;
 
     // Check if timer has expired
     if (!req.session.otp || !req.session.currentTimestamp) {
@@ -452,8 +453,6 @@ const resendOTPpass = async (req, res) => {
   } catch (error) {
     console.error("OTP resend error:", error);
     res.status(500).render("changepassword", {
-      showTimer: false,
-      email,
       errorMessage: "Failed to resend OTP",
     });
   }
@@ -486,9 +485,7 @@ const verifyOTPpass = async (req, res) => {
         const user = await User.findById(userData._id); // Find user by ID
         if (!user) {
           return res.status(400).render("changepassword", {
-            errorMessage: "User not found",
-            showTimer: false,
-            email: userData.email,
+            errorMessage: "User not found"
           });
         }
 
@@ -583,8 +580,6 @@ const resendOTPforgot = async (req, res) => {
   } catch (error) {
     console.error("OTP resend error:", error);
     res.status(500).render("forgototp", {
-      showTimer: false,
-      email: req.session.email,
       errorMessage: "Failed to resend OTP",
     });
   }
