@@ -461,7 +461,7 @@
       
             function removeFromCart(productId) {
               fetch(`/remove-from-cart/${productId}`, {
-                method: "GET",
+                method: "DELETE",
                 headers: {
                   "Content-Type": "application/json",
                 },
@@ -551,7 +551,6 @@
               // You can add additional logic here to calculate shipping dynamically based on certain conditions
               
               // Set the values of hidden inputs
-              // Set the values of hidden inputs
               cartDataInput.value = JSON.stringify(products);
               totalPriceInput.value = totalPrice;
               shippingInput.value = shipping;
@@ -586,6 +585,7 @@
       
               // Get product ID from the product row
               const productId = productRow.find(".product-id").text();
+
               // Send update request to backend
                 fetch(`/update-cart-quantity/${productId}`, {
                   method: "PATCH",
@@ -611,6 +611,7 @@
                   const increaseBtn = card.querySelector(".quantity-btn.increase");
                   const quantityInput = card.querySelector(".product-quantity input");
                   const stock = parseInt(card.dataset.stock);
+                  
                   decreaseBtn.addEventListener("click", function () {
                     let quantity = parseInt(quantityInput.value);
                     if (quantity > 1) {

@@ -29,7 +29,7 @@
       <!-- Nav Links -->
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
+          <li class="nav-item">
             <a class="nav-link" href="/">HOME</a>
           </li>
           <li class="nav-item">
@@ -49,8 +49,7 @@
           </li>
         </ul>
       </div>
-      <!-- Search Bar with Link -->
-      
+
       <% if (fullName) { %>
       <div class="user-info">
         <a href="/profile" class="nav-link nav-linklogout"><%= fullName %></a>
@@ -73,62 +72,74 @@
         <span class="navbar-toggler-icon">&#9776;</span>
       </button>
     </nav>
-    <div class="container">
-      <h1 class="mb-4">View Addresses</h1>
-      <% if (addresses.length > 0) { %> <% addresses.forEach((address) => { %>
-      <!-- Inside the address card loop -->
-      <div class="address-card <%= address.active ? 'active' : '' %>">
-        <div class="row">
-          <div class="col-md-9">
-            <p><strong>Address:</strong> <%= address.address %></p>
-            <p><strong>Street:</strong> <%= address.addressline2 %></p>
-            <p><strong>City:</strong> <%= address.city %></p>
-            <p><strong>State:</strong> <%= address.state %></p>
-            <p><strong>Pincode:</strong> <%= address.pincode %></p>
-            <p>------------------------------------------------</p>
-          </div>
-          <div class="col-md-3">
-            <div class="btn-group">
-              
-              <% if (address.status) { %>
-              <a
-                href="/set-activeorder/<%= address._id %>?status=inactive"
-                class="btn btn-success"
-              >
-                <i class="fas fa-check"></i> Default
-              </a>
-              <% } else { %>
-              <a
-                href="/set-activeorder/<%= address._id %>?status=active"
-                class="btn btn-secondary"
-              >
-                <i class="fas fa-times"></i> Make default
-              </a>
-              <% } %>
-            </div>
-          </div>
+
+    <main class="container mt-5">
+      <div class="wallet-box p-4 mb-4">
+        <h1 class="mb-4">Wallet</h1>
+        <div class="wallet-balance mb-4">
+          <% if (wallet && wallet.balance !== undefined) { %>
+          <h2>Balance: <%= wallet.balance.toFixed(2) %></h2>
+          <% } else { %>
+          <h2>Balance: N/A</h2>
+          <% } %>
+        </div>
+
+        <!-- Pagination -->
+        <ul class="pagination">
+          <% if (currentPage > 1) { %>
+          <li class="page-item">
+            <a class="page-link" href="/wallet?page=<%= currentPage - 1 %>"
+              >Previous</a
+            >
+          </li>
+          <% } %> <% for (let i = 1; i <= totalPages; i++) { %>
+          <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+            <a class="page-link" href="/wallet?page=<%= i %>"><%= i %></a>
+          </li>
+          <% } %> <% if (currentPage < totalPages) { %>
+          <li class="page-item">
+            <a class="page-link" href="/wallet?page=<%= currentPage + 1 %>"
+              >Next</a
+            >
+          </li>
+          <% } %>
+        </ul>
+
+        <div class="wallet-transactions mb-4">
+          <h2>Transaction History</h2>
+          <% if (wallet && wallet.transactions && wallet.transactions.length >
+          0) { %>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Description</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% transactions.forEach(transaction => { %>
+              <tr>
+                <td><%= transaction.type %></td>
+                <td><%= transaction.amount %></td>
+                <td><%= transaction.description %></td>
+                <td><%= transaction.date.toLocaleDateString() %></td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+          <% } else { %>
+          <p>No transactions found.</p>
+          <% } %>
         </div>
       </div>
+    </main>
 
-      <% }); %> <% } else { %>
-      <p>No addresses found.</p>
-      <% } %>
-      <!-- Link to add new address -->
-      <a href="/add-addressorder" class="btn btn-success"
-        ><i class="fas fa-plus"></i> Add New Address</a
-      >
-      <br>
-      <br>
-      <a href="/checkout" class="btn btn-success"
-      ><i class="btn btn-success"></i> Checkout</a
-    >
-    </div>
+    <footer class="main-footer mt-5">
+      <!-- Footer content -->
+    </footer>
 
-   
-    </div>
-    <!-- Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
   </body>
 </html>

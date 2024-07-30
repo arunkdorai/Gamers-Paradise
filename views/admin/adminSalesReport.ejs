@@ -425,7 +425,7 @@
         ordersToDisplay.forEach((order) => {
           const row = document.createElement("tr");
           row.innerHTML = `
-        <td>${order._id}</td>
+        <td>${order.customOrderId}</td>
         <td>${order.user ? order.user.fullname : "-"}</td>
         <td>
           <ul>

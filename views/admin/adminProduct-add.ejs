@@ -86,6 +86,12 @@
         <li><a href="/admin/User"> <i class="fa fa-bar-chart"></i>User</a></li>
         <li><a href="/admin/Category"> <i class="icon-padnote"></i>Category</a></li>
         <li><a href="/admin/order"> <i class="icon-paper-and-pencil"></i>Order</a></li>
+        <li><a href="/admin/coupons"> <i class="icon-three-cells"></i>Coupons</a></li>
+        <li>
+          <a href="/admin/sales">
+            <i class="icon-info"></i>Sales Report</a
+          >
+          </li>
       
     </nav>
     <!-- Sidebar Navigation end-->
@@ -176,6 +182,13 @@
                   </div>
                 </div>
 
+                <div class="form-group row">
+                  <label class="col-sm-3 form-control-label">Offer Price</label>
+                  <div class="col-sm-9">
+                    <input type="number" id="offerPrice" class="form-control" name="offerPrice" min="0" oninput="validateField('offerPrice')" />
+                    <span id="offerPrice-error" class="error-message"></span>
+                  </div>
+                </div>
               <!-- Buttons -->
               <div class="form-group row">
                 <div class="col-sm-9 ml-auto">
@@ -429,11 +442,13 @@ document.getElementById('cropButton').style.display = 'inline-block';
       var about = document.querySelector("textarea[name='about']").value.trim();
       var price = document.querySelector("input[name='price']").value.trim();
       var stock = document.querySelector("input[name='stock']").value.trim();
+      var offerPrice = document.querySelector("input[name='offerPrice']").value.trim();
       var image = document.querySelector("input[name='images']").value.trim();
   
       // Regular expressions for validation
       var priceRegex = /^\d+(\.\d{1,2})?$/; // Matches numbers with optional decimal up to 2 places
       var stockRegex = /^\d+$/; // Matches only positive integers
+      var offerPriceRegex = /^\d+(\.\d{1,2})?$/; // Matches numbers with optional decimal up to 2 places
       var imageExtensions = /\.(jpg|jpeg|png|gif|webp)$/i; // Matches image file extensions
   
       var isValid = true;
@@ -469,6 +484,10 @@ document.getElementById('cropButton').style.display = 'inline-block';
         isValid = false;
       }
 
+      if (parseFloat(offerPrice)>parseFloat(price)) {
+        displayErrorMessage("offerPrice", "Please enter a valid offer price (e.g., 10 or 10.99) and it should less than price");
+        isValid = false;
+      }
   
       if (image === "") {
         displayErrorMessage("image", "Please upload product images");

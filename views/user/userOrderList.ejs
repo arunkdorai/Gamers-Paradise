@@ -205,13 +205,13 @@
                 method="POST"
                 class="d-inline"
               >
-                <!-- <button
+                <button
                   type="button"
                   class="btn btn-warning"
                   onclick="confirmReturnOrder('<%= order.customOrderId %>')"
                 >
                   Return Order
-                </button> -->
+                </button>
                 <br />
                 <br />
               </form>
@@ -279,9 +279,9 @@
                 <br />
               </form>
               <% } %> <% if (order.status === 'completed') { %>
-              <!-- <a href="/orders/<%= order.customOrderId %>/invoice" class="btn btn-primary"
+              <a href="/orders/<%= order.customOrderId %>/invoice" class="btn btn-primary"
                 >Invoice</a
-              > -->
+              >
               <% } %>
             </td>
           </tr>
@@ -354,26 +354,26 @@
                         action="/orders/return-product/<%= order.customOrderId %>/<%= product.product._id %>"
                         method="POST"
                       >
-                        <!-- <button
+                        <button
                           type="button"
                           class="btn btn-warning"
                           onclick="confirmReturnProduct('<%= order.customOrderId %>', '<%= product.product._id %>')"
                         >
                           Return Product
-                        </button> -->
+                        </button>
                       </form>
                       <%} else if (product.status == 'returned') { %>
-                      <!-- <button type="button" class="btn btn-secondary" disabled>
+                      <button type="button" class="btn btn-secondary" disabled>
                         Product Returned
-                      </button> -->
+                      </button>
                       <% } else if (product.status == 'cancelled') { %>
                       <button type="button" class="btn btn-danger" disabled>
                         Cancelled
                       </button>
                       <% } else if (product.status == 'returnrequest') { %>
-                      <!-- <button type="button" class="btn btn-primary" disabled>
+                      <button type="button" class="btn btn-primary" disabled>
                         Requested for return
-                      </button> -->
+                      </button>
                       <% } else { %>
                       <button type="button" class="btn btn-primary" disabled>
                         <%=order.status %>
@@ -448,20 +448,19 @@
                   <tr>
                     <td style="text-align: left">Subtotal</td>
                     <td style="text-align: left">
-                      <%=
-                      ((order.grandTotalPrice || 0) - (order.reducedPrice || 0) - (order.returnedPrice || 0) - 45 - (order.discountedAmount || 0) - (((order.grandTotalPrice || 0) - (order.reducedPrice || 0) - (order.returnedPrice || 0) - 45) / 21)).toFixed(2)
+                      <%= order.status=='cancelled' ||order.status=='returned'
+                      ?0:((order.grandTotalPrice || 0) - (order.reducedPrice || 0) - (order.returnedPrice || 0) - 45 - (order.discountedAmount || 0) - (((order.grandTotalPrice || 0) - (order.reducedPrice || 0) - (order.returnedPrice || 0) - 45) / 21)).toFixed(2)
                       %>
                     </td>
                   </tr>
                   <tr>
                     <td style="text-align: left">Shipping Fee</td>
-                    <td style="text-align: left"><%= 45 %></td>
+                    <td style="text-align: left"><%= order.status=='cancelled' ||order.status=='returned' ?0:45 %></td>
                   </tr>
                   <tr>
                     <td style="text-align: left">Tax</td>
                     <td style="text-align: left">
-                      <%=
-                      (((order.grandTotalPrice || 0) - (order.reducedPrice || 0) - (order.returnedPrice || 0) - 45) / 21).toFixed(2)
+                      <%= order.status=='cancelled' ||order.status=='returned' ?0:(((order.grandTotalPrice || 0) - (order.reducedPrice || 0) - (order.returnedPrice || 0) - 45) / 21).toFixed(2)
                       %>
                     </td>
                   </tr>
@@ -498,7 +497,7 @@
                   <tr>
                     <th style="text-align: left">Total</th>
                     <th style="text-align: left">
-                      <%=
+                      <%= order.status=='cancelled' ||order.status=='returned' ?((order.grandTotalPrice || 0) - (order.reducedPrice || 0) - (order.returnedPrice || 0) - (order.discountedAmount || 0)).toFixed(2):
                       ((order.grandTotalPrice || 0) - (order.reducedPrice || 0) - (order.returnedPrice || 0) - (order.discountedAmount || 0)).toFixed(2)
                       %>
                     </th>
@@ -533,6 +532,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.min.js"></script>
     <script>
       function confirmReturnOrder(orderId) {
@@ -647,5 +647,108 @@
         });
       }
     </script>
+
+<script>
+  const RAZORPAY_KEY_ID = "<%= RAZORPAY_KEY_ID %>";
+  let rzp1; // Declare the Razorpay instance globally
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const orderId = this.querySelector('input[name="orderId"]').value;
+    const amount = this.querySelector('input[name="amount"]').value * 100; // Convert amount to paise
+    console.log("amount:", amount);
+    rzp1 = new Razorpay({
+      key: RAZORPAY_KEY_ID,
+      amount: amount,
+      image: "/images/logo.png",
+      handler: function (response) {
+        handlePaymentSuccess(response);
+      },
+      prefill: {
+        email: "arunkumar.k666@gmail.com",
+        contact: "8892737153",
+      },
+      theme: {
+        color: "#bca374",
+      },
+    });
+
+    rzp1.on("payment.failed", function (response) {
+      handlePaymentFailure(response);
+    });
+
+    document
+      .querySelectorAll('form[action="/repayment/process"]')
+      .forEach((form) => {
+        form.addEventListener("submit", function (event) {
+          event.preventDefault(); // Prevent the form from submitting normally
+
+          const orderId = this.querySelector('input[name="orderId"]').value;
+          const amount =
+            this.querySelector('input[name="amount"]').value * 100; // Convert amount to paise
+          console.log("amount:", amount);
+
+          fetch("/repayment/process", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ amount, orderId }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              const options = {
+                key: RAZORPAY_KEY_ID,
+                amount: amount,
+                currency: data.currency,
+                order_id: data.orderId,
+                name: "Gamers Paradise",
+                description: "Order Payment",
+                image: "/images/logo.png",
+                handler: function (response) {
+                  handlePaymentSuccess(response, orderId);
+                },
+              };
+
+              rzp1.open(options);
+            })
+            .catch((error) => {
+              console.error("Error fetching order details:", error);
+            });
+        });
+      });
+
+    function handlePaymentSuccess(response, orderId) {
+      Swal.fire({
+        icon: "success",
+        title: "Payment Successful",
+        text: "Your payment has been successfully processed!",
+      }).then(() => {
+        fetch(`/repayment/success`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(response),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((error) =>
+            console.error("Payment success handler error:", error)
+          );
+      });
+    }
+
+    function handlePaymentFailure(response) {
+      if (rzp1) {
+        rzp1.close(); // Close the Razorpay modal
+      }
+      window.reload();
+      console.error("Payment failed:", response);
+    }
+  });
+</script>
+
   </body>
 </html>

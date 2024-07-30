@@ -338,26 +338,26 @@
                       
                                   const subtotal = (grandTotalPrice - reducedPrice - returnedPrice - shippingFee - discountedAmount - tax).toFixed(2);
                                 %>
-                                <%= subtotal %>
+                                <%= order[i].status=='cancelled' ||order[i].status=='returned' ?0: subtotal %>
                               </td>
                             </tr>
                             <tr>
                               <td style="text-align: left">Shipping Fee</td>
                               <td style="text-align: left">
-                                <%= shippingFee %>
+                                <%= order[i].status=='cancelled' ||order[i].status=='returned' ?0:shippingFee %>
                               </td>
                             </tr>
                             <tr>
                               <td style="text-align: left">Tax</td>
                               <td style="text-align: left">
-                                <%= tax.toFixed(2) %>
+                                <%= order[i].status=='cancelled' ||order[i].status=='returned' ?0:(tax.toFixed(2)) %>
                               </td>
                             </tr>
                             <% if(order[i].coupon) { %>
                               <tr>
                                 <th style="text-align: left">Discount Amount</th>
                                 <th style="text-align: left">
-                                  <%= discountedAmount %>
+                                  <%= order[i].discountedAmount %>
                                 </th>
                               </tr>
                             <% } %>
@@ -389,7 +389,8 @@
                             <tr>
                               <th style="text-align: left">Total</th>
                               <th style="text-align: left">
-                                <%= (grandTotalPrice - reducedPrice - returnedPrice - discountedAmount).toFixed(2) %>
+                                <%= rder[i].status=='cancelled' ||order[i].status=='returned' ?
+                                0:(grandTotalPrice - reducedPrice - returnedPrice - discountedAmount).toFixed(2) %>
                               </th>
                             </tr>
                             <tr>
