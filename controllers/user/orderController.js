@@ -211,8 +211,9 @@ const addAddressorder = async (req, res) => {
 //function for cancel the product in an order
 const cancelProduct = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.orderId);
+    const order = await Order.findOne({ customOrderId: req.params.customOrderId });
     const productId = req.params.productId;
+
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
     }
@@ -290,6 +291,7 @@ const cancelProduct = async (req, res) => {
         parseFloat(reducedPrice) +
         (remainingProducts.length === 0 ? 45 : 0)
       ).toFixed(2);
+
       user.wallet.transactions.push({
         type: "credit",
         amount:
@@ -311,7 +313,7 @@ const cancelProduct = async (req, res) => {
 //function for generate order return request
 const returnOrderRequest = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.customOrderId);
+    const order = await Order.findOne({customOrderId:req.params.customOrderId});
     const productId = req.params.productId;
 
     if (!order) {
@@ -331,7 +333,7 @@ const returnOrderRequest = async (req, res) => {
 //function for generate product return request
 const returnProductRequest = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.customOrderId);
+    const order = await Order.findOne( {customOrderId:req.params.customOrderId} );
     const productId = req.params.productId;
 
     if (!order) {
@@ -492,7 +494,7 @@ const placeOrder = async (req, res) => {
             "wallet.transactions": {
               type: "debit",
               amount: debitAmount,
-              description: `Order ${order.customOrderId} placed with wallet balance`
+              description: `Order ${order._id} placed with wallet balance`
             }
           }
         },
@@ -500,7 +502,7 @@ const placeOrder = async (req, res) => {
       );
     }
 
-    if (totalPrice != 0 && totalPrice != grandtotalPrice && discountedAmount == 0) {
+    if (totalPrice != 0 && totalPrice != grandTotalPrice && discountedAmount == 0) {
       const userWithWallet = await User.findById(userId).populate("wallet");
       const wallet = userWithWallet.wallet;
 
@@ -525,7 +527,7 @@ const placeOrder = async (req, res) => {
 
     // Associate the order with the user
     await User.findByIdAndUpdate(userId, {
-      $push: { order: order.customOrderId },
+      $push: { order: order._id },
     });
 
     // Update product quantities
@@ -547,7 +549,7 @@ const placeOrder = async (req, res) => {
     await Cart.findOneAndUpdate({ userId: userId }, { cartItems: [] });
 
     // Render the success page with the order ID
-    return res.status(200).render("orderSuccess", { orderId: customOrderId });
+    return res.status(200).render("orderSuccess", { orderId: order.customOrderId });
 
   } catch (error) {
     console.error("Error placing order:", error);
@@ -563,14 +565,14 @@ const processpayment = async (req, res) => {
     let userId = req.session.userData._id;
     const processOrder = req.session.orderRazerpay;;
     const totalPrice = parseFloat(processOrder.amount);
-    const grandtotalPrice = parseFloat(req.session.totalPrice);
+    const grandTotalPrice = parseFloat(req.session.totalPrice);
     const amount = req.session.amount;
     const discountedAmount = processOrder.discountedAmount
       ? parseFloat(processOrder.discountedAmount)
       : 0;
 
-    if (isNaN(totalPrice) || isNaN(grandtotalPrice)) {
-      throw new Error("Invalid totalPrice or grandtotalPrice");
+    if (isNaN(totalPrice) || isNaN(grandTotalPrice)) {
+      throw new Error("Invalid totalPrice or grandTotalPrice");
     }
 
     // Create the order with the appropriate payment method
@@ -580,11 +582,11 @@ const processpayment = async (req, res) => {
       match: { status: true },
     });
     const coupon = await Coupon.findOne({ code: processOrder.coupon });
-    const difference = grandtotalPrice - amount - discountedAmount; // Parse as float
+    const difference = grandTotalPrice - amount - discountedAmount; // Parse as float
     const activeAddress = user.addresses[0];
     const order = await Order.create({
       user: req.session.userData._id,
-      grandTotalPrice: grandtotalPrice,
+      grandTotalPrice: grandTotalPrice,
       totalPrice,
       paymentMethod,
       address: activeAddress._id,
@@ -599,7 +601,7 @@ const processpayment = async (req, res) => {
 
     if (
       totalPrice != 0 &&
-      totalPrice != grandtotalPrice &&
+      totalPrice != grandTotalPrice &&
       discountedAmount == 0
     ) {
       const user = await User.findById(userId).populate("wallet");
@@ -621,7 +623,7 @@ const processpayment = async (req, res) => {
 
     // Associate the order with the user
     await User.findByIdAndUpdate(userId, {
-      $push: { order: order.customOrderId },
+      $push: { order: order._id },
     });
     // 5. Update product quantities and clear the cart
     await Promise.all(
@@ -670,7 +672,7 @@ const createorder = async (req, res) => {
 const invoice = async (req, res) => {
   try {
     const orderId = req.params.customOrderId;
-    const order = await Order.findById(customOrderId)
+    const order = await Order.findOne({customOrderId: orderId})
       .populate("products.product")
       .populate("address")
       .populate("coupon");
@@ -702,7 +704,7 @@ const invoice = async (req, res) => {
     doc
       .fillColor("#bca374")
       .fontSize(18)
-      .text("4WATCHES", 400, 65, { align: "right" });
+      .text("Gamers Paradise", 400, 65, { align: "right" });
     doc.moveDown(0.5); // Add space before the customer name
     doc
       .fillColor("#333333")
@@ -895,14 +897,14 @@ const paymentFail = async (req, res) => {
     const razorpayOrder = req.session.orderRazerpay;
     const processOrder = req.session.orderRazerpay;
     const totalPrice = parseFloat(razorpayOrder.amount);
-    const grandtotalPrice = parseFloat(req.session.totalPrice);
+    const grandTotalPrice = parseFloat(req.session.totalPrice);
     const amount = req.session.amount;
     const discountedAmount = processOrder.discountedAmount
       ? parseFloat(processOrder.discountedAmount)
       : 0;
 
-    if (isNaN(totalPrice) || isNaN(grandtotalPrice)) {
-      throw new Error("Invalid totalPrice or grandtotalPrice");
+    if (isNaN(totalPrice) || isNaN(grandTotalPrice)) {
+      throw new Error("Invalid totalPrice or grandTotalPrice");
     }
 
     // 4. Create the order with the appropriate payment method
@@ -912,12 +914,12 @@ const paymentFail = async (req, res) => {
       match: { status: true },
     });
     const coupon = await Coupon.findOne({ code: processOrder.coupon });
-    const difference = grandtotalPrice - amount - discountedAmount; // Parse as float
+    const difference = grandTotalPrice - amount - discountedAmount; // Parse as float
     const activeAddress = user.addresses[0];
     const order = await Order.create({
       user: req.session.userData._id,
       totalPrice,
-      grandTotalPrice: grandtotalPrice,
+      grandTotalPrice: grandTotalPrice,
       paymentMethod,
       address: activeAddress._id,
       products: req.session.cart.map((item) => ({
@@ -933,7 +935,7 @@ const paymentFail = async (req, res) => {
 
     if (
       totalPrice != 0 &&
-      totalPrice != grandtotalPrice &&
+      totalPrice != grandTotalPrice &&
       discountedAmount == 0
     ) {
       const user = await User.findById(userId).populate("wallet");
@@ -954,7 +956,7 @@ const paymentFail = async (req, res) => {
 
     // Associate the order with the user
     await User.findByIdAndUpdate(userId, {
-      $push: { order: order.customOrderId },
+      $push: { order: order._id },
     });
     // 5. Update product quantities and clear the cart
     await Promise.all(
@@ -982,7 +984,7 @@ const paymentFail = async (req, res) => {
 const repayment = async (req, res) => {
   try {
     const { amount, customOrderId } = req.body;
-    req.session.orderPaymentPending = await Order.findById(customOrderId);
+    req.session.orderPaymentPending = await Order.findById(orderId);
     req.session.amount = amount;
     const userId = req.session.userData._id;
     const receipt = `repayment_order_${customOrderId}`;

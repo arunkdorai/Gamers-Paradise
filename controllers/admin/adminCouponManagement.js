@@ -21,10 +21,12 @@ const getAllCoupons = async (req, res) => {
       coupons: coupons,
       currentPage: page,
       totalPages: totalPages,
+      messages: req.flash() // Pass flash messages to the template
     });
   } catch (error) {
     console.error("Error fetching coupons:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    req.flash('error', 'Error fetching coupons'); // Set error flash message
+    res.redirect('/admin/coupons'); // Redirect back to coupons page
   }
 };
 
@@ -62,20 +64,21 @@ const createCoupon = async (req, res) => {
 
     // Save the coupon to the database
     const savedCoupon = await newCoupon.save();
+    await newCoupon.save();
     req.flash("success", "Coupon created successfully");
     res.redirect("/admin/coupons");
   } catch (error) {
     console.error("Error creating coupon:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    req.flash('error', 'Error creating coupon'); // Set error flash message
+    res.redirect('/admin/coupons'); // Redirect back to coupons page
   }
 };
 // Function to check for duplicate coupons
 const checkDuplicateCoupon = async (code) => {
   try {
-    const existingCoupon = await Coupon.findOne({
+    return await Coupon.findOne({
       code: new RegExp("^" + code + "$", "i"),
     });
-    return existingCoupon;
   } catch (error) {
     console.error("Error checking for duplicate coupons:", error);
     throw error;
@@ -102,7 +105,7 @@ const updateCoupon = async (req, res) => {
       !minPurchaseAmount ||
       !validFrom ||
       !validTo ||
-      !oncePerUser
+      oncePerUser === undefined
     ) {
       req.flash("error", "All required fields must be provided");
       return res.redirect("/admin/coupons");
@@ -141,7 +144,8 @@ const updateCoupon = async (req, res) => {
     res.redirect("/admin/coupons");
   } catch (error) {
     console.error("Error updating coupon:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    req.flash('error', 'Error updating coupon'); // Set error flash message
+    res.redirect('/admin/coupons'); // Redirect back to coupons page
   }
 };
 // Function to delete an existing coupon
@@ -154,13 +158,16 @@ const deleteCoupon = async (req, res) => {
     const deletedCoupon = await Coupon.findByIdAndDelete(couponId);
 
     if (!deletedCoupon) {
-      return res.status(404).json({ message: "Coupon not found" });
+      req.flash('error', 'Coupon not found'); // Set error flash message
+    } else {
+      req.flash('success', 'Coupon deleted successfully'); // Set success flash message
     }
 
-    res.status(200).redirect("/admin/coupons");
+    res.redirect("/admin/coupons");
   } catch (error) {
     console.error("Error deleting coupon:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    req.flash('error', 'Error deleting coupon'); // Set error flash message
+    res.redirect('/admin/coupons'); // Redirect back to coupons page
   }
 };
 

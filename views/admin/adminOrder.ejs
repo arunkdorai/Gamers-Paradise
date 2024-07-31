@@ -389,7 +389,7 @@
                             <tr>
                               <th style="text-align: left">Total</th>
                               <th style="text-align: left">
-                                <%= rder[i].status=='cancelled' ||order[i].status=='returned' ?
+                                <%= order[i].status=='cancelled' ||order[i].status=='returned' ?
                                 0:(grandTotalPrice - reducedPrice - returnedPrice - discountedAmount).toFixed(2) %>
                               </th>
                             </tr>

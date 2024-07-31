@@ -108,7 +108,7 @@ const cancelOrder = async (req, res) => {
           parseFloat(order.totalPrice) +
           (order.walletAmount ? parseFloat(order.walletAmount) : 0) -
           parseFloat(order.reducedPrice),
-        description: `Order ${order._id} cancelled`,
+        description: `Order ${order.customOrderId} cancelled`,
       });
 
       // Save the updated wallet
@@ -127,7 +127,7 @@ const cancelOrder = async (req, res) => {
       user.wallet.transactions.push({
         type: "credit",
         amount: order.walletAmount - parseFloat(reducedPrice),
-        description: `Order ${order._id} cancelled`,
+        description: `Order ${order.customOrderId} cancelled`,
       });
 
       // Save the updated wallet
@@ -380,7 +380,7 @@ const returnProductAsAdmin = async (req, res) => {
 
 const returnOrder = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.orderId);
+    const order = await Order.findOne({customOrderId: req.params.customOrderId });
 
     if (!order) {
       return res.status(404).json({ error: "Order not found" });

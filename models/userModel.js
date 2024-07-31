@@ -33,6 +33,7 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
   addresses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Address" }],
+  wishlistItems: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
   cart: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
   // cart: [{
   //   product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },

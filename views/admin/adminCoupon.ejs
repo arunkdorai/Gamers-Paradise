@@ -161,6 +161,30 @@
             <h2 class="h5 no-margin-bottom">Admin Dashboard</h2>
           </div>
         </div>
+        <% if (messages.error || messages.success) { %>
+          <div id="flashMessage" class="alert <%= messages.error ? 'alert-danger' : 'alert-success' %>">
+            <%= messages.error || messages.success %>
+          </div>
+          <script>
+            // Function to remove the flash message
+            function removeFlashMessage() {
+              var flashMessage = document.getElementById('flashMessage');
+              if (flashMessage) {
+                flashMessage.style.opacity = '1';
+                var fadeEffect = setInterval(function () {
+                  if (flashMessage.style.opacity > 0) {
+                    flashMessage.style.opacity -= 0.1;
+                  } else {
+                    clearInterval(fadeEffect);
+                    flashMessage.style.display = 'none';
+                  }
+                }, 50);
+              }
+            }
+            // Set timeout to remove the message after 4 seconds
+            setTimeout(removeFlashMessage, 4000);
+          </script>
+          <% } %>
         <div class="container mb-4">
           <button id="createCouponBtn" class="btn btn-primary">Create New Coupon</button>
         </div>
@@ -462,6 +486,20 @@ function validateCreateCouponForm() {
       document.getElementById("validTo-error").textContent = "Valid to date is required";
       isValid = false;
     }
+    // Check if coupon code already exists
+  const existingCodes = document.querySelectorAll("[id^='code_']");
+  const inputCode = code.trim().toLowerCase();
+  const codeErrorElement = document.getElementById("code-error");
+  existingCodes.forEach((codeElement) => {
+    const existingCode = codeElement.value.trim().toLowerCase();
+    if (inputCode === existingCode) {
+      codeErrorElement.textContent = "Coupon code already exists";
+      codeErrorElement.style.display = "block"; // Show the error message element
+      isValid = false;
+    }
+  });
+  console.log(codeErrorElement);
+
 
     return isValid;
   }
@@ -517,6 +555,20 @@ function validateCreateCouponForm() {
     document.getElementById(`editOncePerUser-error_${couponId}`).textContent = "Once per user option is required";
     isValid = false;
   }
+
+  // Check if coupon code already exists
+  const existingCodes = document.querySelectorAll("[id^='code_']");
+  const inputCode = code.trim().toLowerCase();
+  const codeErrorElement = document.getElementById(`editCode-error_${couponId}`);
+  existingCodes.forEach((codeElement) => {
+    const existingCode = codeElement.value.trim().toLowerCase();
+    if (inputCode === existingCode && existingCode !== document.getElementById(`editCode_${couponId}`).value.trim().toLowerCase()) {
+      codeErrorElement.textContent = "Coupon code already exists";
+      codeErrorElement.style.display = "block"; // Show the error message element
+      isValid = false;
+    }
+  });
+  console.log(codeErrorElement);
 
   return isValid;
 }

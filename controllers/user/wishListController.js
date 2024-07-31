@@ -42,9 +42,17 @@ const removeFromWishlist = async (req, res) => {
     );
     await user.save();
 
-    return res
-      .status(200)
-      .json({ message: "Product removed from wishlist successfully" });
+    // return res
+    //   .status(200)
+    //   .json({ message: "Product removed from wishlist successfully" });
+
+    // Option 1: Redirect to the wishlist page
+    res.redirect('/wishlist'); // Adjust the route as per your wishlist page URL
+
+    // Option 2: Render the wishlist page with updated data (if you prefer rendering the view)
+    // const updatedWishlist = await User.findById(userId).populate('wishlistItems').exec();
+    // res.render('user/wishlist', { wishlistItems: updatedWishlist.wishlistItems });
+
   } catch (error) {
     console.error("Error removing product from wishlist:", error);
     res.status(500).json({ message: "Internal Server Error" });
