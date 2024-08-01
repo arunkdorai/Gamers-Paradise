@@ -48,7 +48,7 @@ const startScheduledTask = () => {
           user.wallet.transactions.push({
             type: "credit",
             amount: order.totalPrice,
-            description: `Order ${order._id} cancelled`,
+            description: `Order ${order.customOrderId} cancelled`,
           });
 
           // Save the updated wallet

@@ -335,6 +335,32 @@ router.post(
   checkUserStatus,
   orderController.createorder
 );
+
+router.post('/process-payment', isAuth,
+  checkUserStatus, async (req, res) => {
+  try {
+    const paymentResponse = req.body.paymentResponse;
+
+    // Process payment here (e.g., save payment details, update order status, etc.)
+
+    // On successful payment processing
+    res.redirect('/order-success');
+  } catch (error) {
+    console.error('Error processing payment:', error);
+    res.redirect('/order-payment-fail');
+  }
+});
+
+// Route to render the success page
+router.get('/order-success', isAuth,
+  checkUserStatus,orderController.orderSuccess);
+
+// Route to render the failure page
+router.get('/order-payment-fail', isAuth,
+  checkUserStatus, (req, res) => {
+  res.render('orderPaymentFail'); // Assuming you have this view
+});
+
 router.get(
   "/orders/:customOrderId/invoice",
   isAuth,

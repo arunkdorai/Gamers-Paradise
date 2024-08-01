@@ -226,10 +226,10 @@
               const checkoutButton = document.getElementById("useWalletCheckbox");
               const walletBalance = parseFloat(document.getElementById("walletBalance").textContent);
 
-              const wallertUse = document.getElementById("useWallet");
+              const walletUse = document.getElementById("useWallet");
               if (walletBalance === 0) {
                 checkoutButton.style.display = "none";
-                wallertUse.innerHTML = "";
+                walletUse.innerHTML = "";
               }
             });
 
@@ -565,7 +565,7 @@ document.addEventListener("DOMContentLoaded", function () {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ amount }),
+    body: JSON.stringify({ amount,orderRazerpay }),
   })
   .then((response) => response.json())
   .then((data) => {
@@ -644,16 +644,17 @@ function handlePaymentFailure(orderRazerpay, amount) {
         })
           .then((response) => {
             if (response.ok) {
-              // Redirect to the order success page or perform any other necessary actions
-              window.location.href = '/orders';
+              // Redirect to the order success page
+              window.location.href = '/order-success';
             } else {
               console.error('Payment processing failed');
+              window.location.href = '/order-payment-fail'; // Handle failure case
             
             }
           })
           .catch((error) => {
             console.error(error);
-            window.location.href = '/orderpaymentfail';
+            window.location.href = '/order-payment-fail'; // Handle network or unexpected errors
           });
       }
     </script>

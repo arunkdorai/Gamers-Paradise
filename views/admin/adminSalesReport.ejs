@@ -331,11 +331,15 @@
         return;
       }
 
+      // Format the order amount to 2 decimal places
+  const formattedOverallOrderAmount = parseFloat(reportData.overallOrderAmount).toFixed(2);
+  const formattedOverallDiscount = parseFloat(reportData.overallDiscount).toFixed(2);
+
       reportContainer.innerHTML = `
     <h2>Overall Sales Report</h2>
     <p>Overall Sales Count: ${reportData.overallSalesCount}</p>
-    <p>Overall Order Amount: ${reportData.overallOrderAmount}</p>
-    <p>Overall Discount: ${reportData.overallDiscount}</p>
+    <p>Overall Order Amount: ₹${formattedOverallOrderAmount}</p>
+    <p>Overall Discount: ₹${formattedOverallDiscount}</p>
   `;
 
       // Render order details report
@@ -432,7 +436,7 @@
             ${order.products
               .map(
                 (product) =>
-                  `<li>${product.product._id} (Quantity: ${product.quantity})</li>`
+                  `<li>${product.product._id}-(Quantity: ${product.quantity})</li>`
               )
               .join("")}
           </ul>

@@ -29,8 +29,7 @@ const renderCheckoutPage = async (req, res) => {
     let addresses = user.addresses;
     const errors = req.flash("error");
 
-    // const walletBalance = user.wallet.balance;
-    const walletBalance = 0;
+    const walletBalance = user.wallet.balance;
     res.render("checkout", {
       addresses,
       tax: parseFloat(tax).toFixed(2),

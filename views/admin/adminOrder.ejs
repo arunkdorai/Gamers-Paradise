@@ -350,7 +350,7 @@
                             <tr>
                               <td style="text-align: left">Tax</td>
                               <td style="text-align: left">
-                                <%= order[i].status=='cancelled' ||order[i].status=='returned' ?0:(tax.toFixed(2)) %>
+                                <%= order[i].status=='cancelled' ||order[i].status=='returned' ?0:((order[i].grandTotalPrice-order[i].reducedPrice-order[i].returnedPrice-45)/21).toFixed(2)%>
                               </td>
                             </tr>
                             <% if(order[i].coupon) { %>

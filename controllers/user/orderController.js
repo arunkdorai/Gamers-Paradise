@@ -16,6 +16,7 @@ const renderOrderListPage = async (req, res) => {
   try {
     const userId = req.session.userData._id;
     const fullName = req.session.userData.fullname;
+    delete req.session.order
     let page = +req.query.page || 1; // Get page number from query parameters or default to 1
     const ITEMS_PER_PAGE = 9; // Define the number of items per page
 
@@ -52,6 +53,43 @@ const cancelOrder = async (req, res) => {
   try {
     const customOrderId = req.params.customOrderId;
     const order = await Order.findOne({ customOrderId: customOrderId });
+    console.log(customOrderId);
+    console.log(order);
+
+    const productId = req.params.productId;
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    const productIndex = order.products.findIndex(
+      (p) => p.product.toString() === productId
+    );
+
+    if (productIndex === -1) {
+      return res.status(404).json({ error: "Product not found in the order" });
+    }
+
+    const product = order.products[productIndex];
+    const productObj = await Product.findById(product.product);
+    const productPrice = parseFloat(productObj.price) || 0;
+    const productQuantity = product.quantity;
+
+    if (isNaN(productPrice) || isNaN(productQuantity)) {
+      return res
+        .status(400)
+        .json({ error: "Invalid product price or quantity" });
+    }
+
+    const discountedAmount = parseFloat(order.discountedAmount) || 0;
+    const totalPrice = parseFloat(order.grandTotalPrice)
+      ? parseFloat(order.grandTotalPrice)
+      : 0;
+    const reducedPrice = calculateReducedPrice(
+      productPrice * productQuantity,
+      discountedAmount,
+      totalPrice
+    );
 
     if (!order) {
       return res.status(404).json({ success: false, message: "Order not found" });
@@ -187,12 +225,15 @@ const addAddressorder = async (req, res) => {
       return res.status(403).redirect("/login");
     }
 
+    const user = await User.findById(userId).populate('addresses');
+    const isFirstAddress = !user.addresses || user.addresses.length === 0;
     const newAddress = new Address({
       address,
       addressline2,
       city,
       state,
       pincode,
+      status:isFirstAddress,
     });
 
     await newAddress.save();
@@ -494,7 +535,7 @@ const placeOrder = async (req, res) => {
             "wallet.transactions": {
               type: "debit",
               amount: debitAmount,
-              description: `Order ${order._id} placed with wallet balance`
+              description: `Order ${order.customOrderId} placed with wallet balance`
             }
           }
         },
@@ -563,7 +604,7 @@ const processpayment = async (req, res) => {
     req.session.checkout = false;
     const discountedTotalPrice = req.session.discountedTotalPrice;
     let userId = req.session.userData._id;
-    const processOrder = req.session.orderRazerpay;;
+    const processOrder = req.session.orderRazerpay;
     const totalPrice = parseFloat(processOrder.amount);
     const grandTotalPrice = parseFloat(req.session.totalPrice);
     const amount = req.session.amount;
@@ -581,16 +622,19 @@ const processpayment = async (req, res) => {
       path: "addresses",
       match: { status: true },
     });
+
     const coupon = await Coupon.findOne({ code: processOrder.coupon });
     const difference = grandTotalPrice - amount - discountedAmount; // Parse as float
     const activeAddress = user.addresses[0];
+    const customOrderId = await Order.generateOrderId();
     const order = await Order.create({
       user: req.session.userData._id,
       grandTotalPrice: grandTotalPrice,
       totalPrice,
       paymentMethod,
+      customOrderId,
       address: activeAddress._id,
-      products: req.session.cart.map((item) => ({
+      products: req.session.cartData.map((item) => ({
         product: item._id,
         quantity: item.quantity,
       })),
@@ -627,7 +671,7 @@ const processpayment = async (req, res) => {
     });
     // 5. Update product quantities and clear the cart
     await Promise.all(
-      req.session.cart.map(async (item) => {
+      req.session.cartData.map(async (item) => {
         const product = await Product.findById(item._id);
         if (product) {
           product.stock -= item.quantity;
@@ -636,17 +680,26 @@ const processpayment = async (req, res) => {
       })
     );
 
-    req.session.cart = [];
+    req.session.cartData = [];
     await Cart.findOneAndUpdate({ userId: userId }, { cartItems: [] });
-
+req.session.order=order
     // 6. Redirect to the order success page or perform any other necessary actions
-    res.status(200).json({ success: true });
+    // return res.status(200).render("orderSuccess", { orderId: order.customOrderId });
+    return res.status(200).json({ success: true });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Something went wrong" });
   }
 };
+const orderSuccess= (req, res) => {
+  try{
+    res.render('orderSuccess',{orderId:req.session.order.customOrderId});
+  }catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Something went wrong" });
+  }
 
+}
 //function for create order for razor pay
 const createorder = async (req, res) => {
   try {
@@ -916,13 +969,15 @@ const paymentFail = async (req, res) => {
     const coupon = await Coupon.findOne({ code: processOrder.coupon });
     const difference = grandTotalPrice - amount - discountedAmount; // Parse as float
     const activeAddress = user.addresses[0];
+    const customOrderId = await Order.generateOrderId();
     const order = await Order.create({
       user: req.session.userData._id,
       totalPrice,
       grandTotalPrice: grandTotalPrice,
       paymentMethod,
+      customOrderId,
       address: activeAddress._id,
-      products: req.session.cart.map((item) => ({
+      products: req.session.cartData.map((item) => ({
         product: item._id,
         quantity: item.quantity,
         status: "paymentpending",
@@ -960,7 +1015,7 @@ const paymentFail = async (req, res) => {
     });
     // 5. Update product quantities and clear the cart
     await Promise.all(
-      req.session.cart.map(async (item) => {
+      req.session.cartData.map(async (item) => {
         const product = await Product.findById(item._id);
         if (product) {
           product.stock -= item.quantity;
@@ -969,7 +1024,7 @@ const paymentFail = async (req, res) => {
       })
     );
 
-    req.session.cart = [];
+    req.session.cartData = [];
     await User.findByIdAndUpdate(userId, { cart: [] });
 
     // 6. Redirect to the order success page or perform any other necessary actions
@@ -984,7 +1039,7 @@ const paymentFail = async (req, res) => {
 const repayment = async (req, res) => {
   try {
     const { amount, customOrderId } = req.body;
-    req.session.orderPaymentPending = await Order.findById(orderId);
+    req.session.orderPaymentPending = await Order.findOne(orderId);
     req.session.amount = amount;
     const userId = req.session.userData._id;
     const receipt = `repayment_order_${customOrderId}`;
@@ -1139,4 +1194,5 @@ module.exports = {
   paymentFail,
   repayment,
   repaymentOrderCreation,
+  orderSuccess,
 };

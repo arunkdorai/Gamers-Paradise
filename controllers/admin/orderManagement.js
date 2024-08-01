@@ -275,7 +275,7 @@ const cancelProductAsAdmin = async (req, res) => {
         type: "credit",
         amount:
           parseFloat(reducedPrice) + (remainingProducts.length === 0 ? 45 : 0),
-        description: `Order ${order._id} cancelled`,
+        description: `Order ${order.customOrderId} cancelled`,
       });
 
       await user.wallet.save();
@@ -366,7 +366,7 @@ const returnProductAsAdmin = async (req, res) => {
       type: "credit",
       amount:
         parseFloat(reducedPrice) + (remainingProducts.length === 0 ? 45 : 0),
-      description: `Order ${order._id} returned`,
+      description: `Order ${order.customOrderId} returned`,
     });
 
     await user.wallet.save();
@@ -439,7 +439,7 @@ const returnOrder = async (req, res) => {
       amount:
         parseFloat(order.grandTotalPrice - order.discountedAmount) -
         reduceTotal,
-      description: `Order ${order._id} returned`,
+      description: `Order ${order.customOrderId} returned`,
     });
 
     // Save the updated wallet
