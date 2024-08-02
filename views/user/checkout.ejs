@@ -174,8 +174,8 @@
         <div class="col-md-6">
           <h2>Payment Method</h2>
           <select name="paymentMethod" id="paymentMethod" class="form-control">
-            <option value="cash_on_delivery">Cash on Delivery</option>
             <option value="pay_on_online">Online Payment</option>
+            <option value="cash_on_delivery">Cash on Delivery</option>            
             <option value="pay_by_wallet" hidden>Use wallet</option>
           </select>
           <div class="form-check mt-3">
@@ -270,7 +270,7 @@ function toggleCashOnDeliveryOption() {
         const discountedAmount = parseFloat(document.getElementById("discountedAmount").textContent);
         const useWallet = document.getElementById("useWalletCheckbox").checked;
         const totalPrice = parseFloat(document.getElementById("totalPrice").textContent);
-        const cashOnDeliveryThreshold = 100000;
+        const cashOnDeliveryThreshold = 1000;
 
         if (useWallet) {
           if (totalPrice <= currentWalletBalance) {

@@ -593,6 +593,7 @@
     document.querySelectorAll('.return-order').forEach(button => {
       button.addEventListener('click', async function () {
         const orderId = this.dataset.orderId;
+        console.log(orderId)
 
         Swal.fire({
           title: 'Are you sure?',

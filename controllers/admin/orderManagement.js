@@ -121,12 +121,12 @@ const cancelOrder = async (req, res) => {
       }
 
       user.wallet.balance =
-        user.wallet.balance + order.walletAmount - parseFloat(reducedPrice);
+        user.wallet.balance + order.walletAmount - parseFloat(order.reducedPrice);
 
       // Add a new transaction to the wallet
       user.wallet.transactions.push({
         type: "credit",
-        amount: order.walletAmount - parseFloat(reducedPrice),
+        amount: order.walletAmount - parseFloat(order.reducedPrice),
         description: `Order ${order.customOrderId} cancelled`,
       });
 

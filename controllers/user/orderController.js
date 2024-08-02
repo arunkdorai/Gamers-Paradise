@@ -51,49 +51,7 @@ const renderOrderListPage = async (req, res) => {
 //function to cancel the order
 const cancelOrder = async (req, res) => {
   try {
-    const customOrderId = req.params.customOrderId;
-    const order = await Order.findOne({ customOrderId: customOrderId });
-    console.log(customOrderId);
-    console.log(order);
-
-    const productId = req.params.productId;
-
-    if (!order) {
-      return res.status(404).json({ error: "Order not found" });
-    }
-
-    const productIndex = order.products.findIndex(
-      (p) => p.product.toString() === productId
-    );
-
-    if (productIndex === -1) {
-      return res.status(404).json({ error: "Product not found in the order" });
-    }
-
-    const product = order.products[productIndex];
-    const productObj = await Product.findById(product.product);
-    const productPrice = parseFloat(productObj.price) || 0;
-    const productQuantity = product.quantity;
-
-    if (isNaN(productPrice) || isNaN(productQuantity)) {
-      return res
-        .status(400)
-        .json({ error: "Invalid product price or quantity" });
-    }
-
-    const discountedAmount = parseFloat(order.discountedAmount) || 0;
-    const totalPrice = parseFloat(order.grandTotalPrice)
-      ? parseFloat(order.grandTotalPrice)
-      : 0;
-    const reducedPrice = calculateReducedPrice(
-      productPrice * productQuantity,
-      discountedAmount,
-      totalPrice
-    );
-
-    if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
-    }
+    const order = await Order.findOne({ customOrderId: req.params.customOrderId });
 
     // Check if the order is already cancelled
     if (order.status === "Cancelled") {
@@ -170,12 +128,12 @@ const cancelOrder = async (req, res) => {
       }
 
       user.wallet.balance =
-        user.wallet.balance + order.walletAmount - parseFloat(reducedPrice);
+        user.wallet.balance + order.walletAmount - parseFloat(order.reducedPrice);
 
       // Add a new transaction to the wallet
       user.wallet.transactions.push({
         type: "credit",
-        amount: order.walletAmount - parseFloat(reducedPrice),
+        amount: order.walletAmount - parseFloat(order.reducedPrice),
         description: `Order ${order.customOrderId} cancelled`,
       });
 
@@ -225,7 +183,7 @@ const addAddressorder = async (req, res) => {
       return res.status(403).redirect("/login");
     }
 
-    const user = await User.findById(userId).populate('addresses');
+    const user = await User.findById(userId).populate("addresses");
     const isFirstAddress = !user.addresses || user.addresses.length === 0;
     const newAddress = new Address({
       address,
@@ -233,7 +191,7 @@ const addAddressorder = async (req, res) => {
       city,
       state,
       pincode,
-      status:isFirstAddress,
+      status: isFirstAddress,
     });
 
     await newAddress.save();
@@ -523,36 +481,29 @@ const placeOrder = async (req, res) => {
       coupon: coupon ? coupon._id : null,
     });
 
-    let walletUpdate = null;
-    if (paymentMethod === "pay_by_wallet" || difference > 0) {
-      const debitAmount = paymentMethod === "pay_by_wallet" ? totalPrice : difference.toFixed(2);
+    // let walletUpdate = null;
+    // if (paymentMethod === "pay_by_wallet" || difference > 0) {
+    //   const debitAmount = paymentMethod === "pay_by_wallet" ? totalPrice : difference.toFixed(2);
       
-      walletUpdate = User.findOneAndUpdate(
-        { _id: userId },
-        {
-          $inc: { "wallet.balance": -debitAmount },
-          $push: {
-            "wallet.transactions": {
-              type: "debit",
-              amount: debitAmount,
-              description: `Order ${order.customOrderId} placed with wallet balance`
-            }
-          }
-        },
-        { new: true }
-      );
-    }
+    //   walletUpdate = User.findOneAndUpdate(
+    //     { _id: userId },
+    //     {
+    //       $inc: { "wallet.balance": -debitAmount },
+    //       $push: {
+    //         "wallet.transactions": {
+    //           type: "debit",
+    //           amount: debitAmount,
+    //           description: `Order ${order.customOrderId} placed with wallet balance`
+    //         }
+    //       }
+    //     },
+    //     { new: true }
+    //   );
+    // }
 
-    if (totalPrice != 0 && totalPrice != grandTotalPrice && discountedAmount == 0) {
+    if (difference > 0) {
       const userWithWallet = await User.findById(userId).populate("wallet");
       const wallet = userWithWallet.wallet;
-
-      wallet.balance -= difference;
-      await wallet.save();  // Save the wallet balance update
-
-      if (walletUpdate) {
-        await walletUpdate; // Ensure previous wallet update is finished
-      }
       
       await wallet.debitBalance(
         difference.toFixed(2),
@@ -650,8 +601,7 @@ const processpayment = async (req, res) => {
     ) {
       const user = await User.findById(userId).populate("wallet");
       const wallet = user.wallet;
-      user.wallet.balance = user.wallet.balance - difference.toFixed(2);
-      user.wallet.save();
+
       await wallet.debitBalance(
         difference.toFixed(2),
         `Order ${order.customOrderId} placed along with wallet balance`
@@ -778,7 +728,7 @@ const invoice = async (req, res) => {
       50,
       150 // Adjust vertical position
     );
-    doc.moveDown(3);
+    doc.moveDown(1);
 
     // Draw a box around order details with a heading
     const boxTop = 200; // Adjust vertical position
@@ -787,7 +737,8 @@ const invoice = async (req, res) => {
       .fillColor("#333333")
       .fontSize(16)
       .text(`Invoice for Order #${order.customOrderId}`, { align: "center" });
-    doc.rect(50, boxTop, 500, boxHeight).stroke("#bca374");
+      
+    doc.rect(50, boxTop, 500, boxHeight).stroke("#bca374").moveDown(1);;
 
     // Add order details table inside the box
     const completedAndReturnedProducts = order.products.filter(
@@ -872,10 +823,19 @@ const invoice = async (req, res) => {
         .fillColor("#333333")
         .fontSize(12)
         .text(
-          `Wallet Balance Used: Rs.${total.toFixed(2)}`,
+          `Wallet Balance Used: Rs.${order.walletAmount-order.discountedAmount-order.returnedPrice.toFixed(2)}`,
           350,
           boxTop + boxHeight + 120
         );
+    }else if(order.walletAmount>0){
+      doc
+      .fillColor("#333333")
+      .fontSize(12)
+      .text(
+        `Wallet Balance Used: Rs.${order.walletAmount.toFixed(2)}`,
+        350,
+        boxTop + boxHeight + 120
+      );
     }
 
     doc
