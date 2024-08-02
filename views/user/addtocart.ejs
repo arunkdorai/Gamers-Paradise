@@ -17,6 +17,213 @@
     />
    
     <link rel="stylesheet" href="/css/cart.css"> 
+    <style>
+      .container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 20px;
+      }
+    
+      h1 {
+          color: #333;
+          text-align: center;
+          margin-bottom: 30px;
+      }
+    
+      .shopping-cart {
+          background: #ffffff;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          padding: 20px;
+          margin-bottom: 30px;
+      }
+    
+      .cart-table {
+          width: 100%;
+          border-collapse: separate;
+          border-spacing: 0 15px;
+      }
+    
+      .cart-table th {
+          display: flex;
+          justify-content:center;
+          align-items: center;
+          background-color: #f8f9fa;
+          color: #495057;
+          font-weight: 600;
+          text-transform: uppercase;
+          padding: 12px;
+          text-align:center;
+          border-bottom: 2px solid #dee2e6;
+      }
+    
+      .cart-table td {
+          display:flex;
+          justify-content:center;
+          align-items: center;
+          padding: 12px;
+          vertical-align: middle;
+          background-color: #ffffff;
+      }
+    
+      .cart-table tr {
+          display: flex;
+          justify-content:space-evenly;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      }
+    
+      .product-info {
+          display: flex;
+          align-items: center;
+      }
+    
+      .product-image {
+          margin-right: 15px;
+      }
+    
+      .product-image img {
+          max-width: 80px;
+          height: auto;
+          border-radius: 4px;
+      }
+    
+      .product-name {
+          font-weight: 500;
+          color: #212529;
+      }
+    
+      .product-price, .product-total {
+          font-weight: 600;
+          color: #28a745;
+      }
+    
+      .original-price {
+          text-decoration: line-through;
+          color: #6c757d;
+          margin-right: 5px;
+      }
+    
+      .offer-price {
+          color: #dc3545;
+      }
+    
+      .quantity-wrapper {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+      }
+    
+      .quantity-btn {
+          background-color: #e9ecef;
+          border: none;
+          color: #495057;
+          padding: 5px 10px;
+          cursor: pointer;
+      }
+    
+      .quantity-input {
+          width: 50px;
+          text-align: center;
+          border: 1px solid #ced4da;
+          border-radius: 4px;
+          padding: 5px;
+          margin: 0 5px;
+      }
+    
+      .remove-btn {
+          background-color: #dc3545;
+          color: white;
+          border: none;
+          padding: 5px 10px;
+          border-radius: 4px;
+          cursor: pointer;
+      }
+    
+      .remove-btn:hover {
+          background-color: #c82333;
+      }
+    
+      .cart-totals {
+          margin-top: 30px;
+          text-align: right;
+      }
+    
+      .cart-totals table {
+          width: 100%;
+          max-width: 400px;
+          margin-left: auto;
+      }
+    
+      .cart-totals th {
+          text-align: left;
+          padding: 10px;
+      }
+    
+      .cart-totals td {
+          text-align: right;
+          padding: 10px;
+          font-weight: 600;
+      }
+    
+      .total-row {
+          border-top: 2px solid #dee2e6;
+          font-size: 1.2em;
+      }
+    
+      .checkout-btn {
+          background-color: #28a745;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 4px;
+          font-size: 1.1em;
+          margin-top: 20px;
+          cursor: pointer;
+      }
+    
+      .checkout-btn:hover {
+          background-color: #218838;
+      }
+    
+      /* @media (max-width: 768px) {
+          .cart-table, .cart-table tbody, .cart-table tr, .cart-table td {
+              display: block;
+          }
+    
+          .cart-table thead {
+              display: none;
+          }
+    
+          .cart-table tr {
+              margin-bottom: 15px;
+          }
+    
+          .cart-table td {
+              text-align: right;
+              padding-left: 50%;
+              position: relative;
+          }
+    
+          .cart-table td::before {
+              content: attr(data-label);
+              position: absolute;
+              left: 6px;
+              width: 45%;
+              padding-right: 10px;
+              white-space: nowrap;
+              text-align: left;
+              font-weight: bold;
+          }
+    
+          .product-info {
+              justify-content: flex-end;
+          }
+    
+          .quantity-wrapper {
+              justify-content: flex-end;
+          }
+      } */
+    </style>
   </head>
   <body>
     <!-- Navbar -->
@@ -73,107 +280,110 @@
 
   <body>
 
-    <h1>Cart</h1>
+    <div class="container">
+    <h1>Your Shopping Cart</h1>
     <div class="shopping-cart">
-      <div class="column-labels">
-        <label class="product-image">Image</label>
-        <label class="product-details">Product</label>.
-        <label class="product-stock">stock status</label>
-        <label class="product-price">Price</label>
-        <label class="product-quantity">Quantity</label>
-        <label class="product-removal">Remove</label>
-        <label class="product-line-price">Total</label>
-        </div>
-        <% if (products.length===0) { %>
-          <p>Your cart is empty.</p>
+      <table class="cart-table">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Product</th>
+            <th>Stock Status</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Remove</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (products.length === 0) { %>
+            <tr>
+              <td colspan="7">Your cart is empty.</td>
+            </tr>
           <% } else { %>
-            <% products.forEach(item=> { %>
+            <% products.forEach(item => { %>
               <% if (item.product && item.product.status) { %>
-                <div class="product row" data-stock="<%= item.product.stock %>">
-                  <div class="product-image">
-                    <a href="/product/<%= item.product._id %>">
-                      <img class="img-fluid" src="<%= item.product.image[0].path %>" alt="product image" />
+                <tr class="product" data-stock="<%= item.product.stock %>">
+                  <td>
+                    <a class="product-image" href="/product/<%= item.product._id %>">
+                      <img class="img-fluid" src="<%= item.product.image[0].path %>" alt="<%= item.product.product %>"/>
                     </a>
-                  </div>
-                  <div class="product-details">
+                  </td>
+                  <td class="product-name">
                     <div class="product-id" hidden>
                       <%= item.product._id %>
                     </div>
                     <p class="product-description">
                       <%= item.product.product %>
                     </p>
-                  </div>
-                  <div class="product-stock">
+                  </td>
+                  <td class="product-stock">
                     <span class="stock-status"></span>
                     <span class="quantity-error" style="color: red; display: none;"></span>
-                  </div>
-                  <div class="product-price">
-                    <% if (item.product.offerPrice && item.product.offerPrice> 0 && item.product.offerPrice <
-                        item.product.price) { %>
-                        <span class="original-price"><s>
-                            <%= item.product.price.toFixed(2) %>
-                          </s></span>
-                        <span class="offer-price">
-                          <%= item.product.offerPrice.toFixed(2) %>
-                        </span>
-                        <% } else { %>
-                          <%= item.product.price.toFixed(2) %>
-                            <% } %>
-                  </div>
-                  <div class="product-quantity">
-                    <button class="quantity-btn decrease">-</button>
-                    <input type="number" value="<%= item.quantity %>" min="1" readonly />
-                    <button class="quantity-btn increase">+</button>
-                  </div>
-                  <div class="product-removal">
+                  </td>
+                  <td class="product-price">
+                    <% if (item.product.offerPrice && item.product.offerPrice > 0 && item.product.offerPrice < item.product.price) { %>
+                      <span class="original-price"><s><%= item.product.price.toFixed(2) %></s></span>
+                      <span class="offer-price"><%= item.product.offerPrice.toFixed(2) %></span>
+                    <% } else { %>
+                      <%= item.product.price.toFixed(2) %>
+                    <% } %>
+                  </td>
+                  <td class="product-quantity quantity-wrapper">
+                    <button class="quantity-btn decrease quantity-btn-table">-</button>
+                    <input type="number" value="<%= item.quantity %>" min="1" readonly class="quantity-input quantity-input-table">
+                    <button class="quantity-btn increase quantity-btn-table">+</button>
+                  </td>
+                  <td class="product-removal">
                     <form id="removeFromCartForm" action="/remove-from-cart/<%= item.product._id %>" method="POST">
                       <input type="hidden" name="_method" value="DELETE" />
-                      <button class="btn-danger" type="submit" class="remove-button"
-                        onclick="removeFromCart('<%= item.product._id %>')">Remove</button>
+                      <button class="remove-btn remove-button" type="submit" onclick="removeFromCart('<%= item.product._id %>')">Remove</button>
                     </form>
-                  </div>
-                  <div class="product-line-price">
-                    <% if (item.product.offerPrice && item.product.offerPrice> 0 && item.product.offerPrice <
-                        item.product.price) { %>
-                        <span class="offer-price">
-                          <%= (item.product.offerPrice * item.quantity).toFixed(2) %>
-                        </span>
-                        <% } else { %>
-                          <%= (item.product.price * item.quantity).toFixed(2) %>
-                            <% } %>
-                  </div>
-                </div>
-                <% } %>
-                  <% }) %>
+                  </td>
+                  <td class="product-line-price product-total">
+                    <% if (item.product.offerPrice && item.product.offerPrice > 0 && item.product.offerPrice < item.product.price) { %>
+                      <span class="offer-price"><%= (item.product.offerPrice * item.quantity).toFixed(2) %></span>
+                    <% } else { %>
+                      <%= (item.product.price * item.quantity).toFixed(2) %>
                     <% } %>
-                      <div class="totals">
-                        <div class="totals-item">
-                          <label>Subtotal:</label>
-                          <div class="totals-value" id="cart-subtotal">0.00</div>
-                        </div>
-                        <div class="totals-item">
-                          <label>Tax (5%):</label>
-                          <div class="totals-value cart-tax" id="cart-tax">0.00</div>
-                        </div>
-                        <div class="totals-item">
-                          <label>Shipping:</label>
-                          <div class="totals-value cart-shipping" id="cart-shipping">0.00</div>
-                        </div>
-                        <div class="totals-item totals-item-total">
-                          <label>Grand Total:</label>
-                          <div class="totals-value" id="cart-total">0.00</div>
-                        </div>
-                      </div>
-                      <form id="checkoutForm" action="/checkout" method="POST">
-                        <!-- Add hidden input fields to store cart data -->
-                        <input type="hidden" name="cartData" id="cartData">
-                        <input type="hidden" name="totalPrice" id="totalPrice">
-                        <input type="hidden" name="shipping" id="shipping">
-                        <input type="hidden" name="tax" id="tax">
-                        <button class="checkout" type="submit">Checkout</button>
-                      </form>
+                  </td>
+                </tr>
+              <% } %>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    
+      <div class="cart-totals">
+        <table>
+          <tr class="totals-item">
+            <th>Subtotal:</th>
+            <td class="totals-value" id="cart-subtotal">0.00</td>
+          </tr>
+          <tr class="totals-item">
+            <th>Tax (5%):</th>
+            <td class="totals-value" id="cart-tax">0.00</td>
+          </tr>
+          <tr class="totals-item">
+            <th>Shipping:</th>
+            <td class="totals-value" id="cart-shipping">0.00</td>
+          </tr>
+          <tr class="totals-item totals-item-total total-row">
+            <th>Grand Total:</th>
+            <td class="totals-value" id="cart-total">0.00</td>
+          </tr>
+        </table>
       </div>
-      </div>
+      <form id="checkoutForm" action="/checkout" method="POST">
+        <input type="hidden" name="cartData" id="cartData">
+        <input type="hidden" name="totalPrice" id="totalPrice">
+        <input type="hidden" name="shipping" id="shipping">
+        <input type="hidden" name="tax" id="tax">
+        <button class="checkout checkout-btn" type="submit">Checkout</button>
+      </form>      
+    </div>
+    </div>
+    
     <!-- Bootstrap JS and jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
@@ -251,7 +461,7 @@
       
             function removeFromCart(productId) {
               fetch(`/remove-from-cart/${productId}`, {
-                method: "GET",
+                method: "DELETE",
                 headers: {
                   "Content-Type": "application/json",
                 },
@@ -341,7 +551,6 @@
               // You can add additional logic here to calculate shipping dynamically based on certain conditions
               
               // Set the values of hidden inputs
-              // Set the values of hidden inputs
               cartDataInput.value = JSON.stringify(products);
               totalPriceInput.value = totalPrice;
               shippingInput.value = shipping;
@@ -376,6 +585,7 @@
       
               // Get product ID from the product row
               const productId = productRow.find(".product-id").text();
+
               // Send update request to backend
                 fetch(`/update-cart-quantity/${productId}`, {
                   method: "PATCH",
@@ -401,6 +611,7 @@
                   const increaseBtn = card.querySelector(".quantity-btn.increase");
                   const quantityInput = card.querySelector(".product-quantity input");
                   const stock = parseInt(card.dataset.stock);
+                  
                   decreaseBtn.addEventListener("click", function () {
                     let quantity = parseInt(quantityInput.value);
                     if (quantity > 1) {

@@ -13,9 +13,11 @@ const authController = require("../controllers/user/authController"); // Import 
 const profileController = require("../controllers/user/profileController"); // Import the profile controller
 const otpController = require("../controllers/user/otpController"); // Import the OTP controller
 const userProductController = require("../controllers/user/userProductController"); // Import the product controller
+const wishlistController = require("../controllers/user/wishListController"); // Import the wishlist controller
 const addToCartController = require("../controllers/user/addToCartcontroller"); // Import the cart controller
 const checkoutController = require("../controllers/user/checkoutController"); // Import the checkout controller
 const orderController = require("../controllers/user/orderController"); // Import the order controller
+const walletController = require("../controllers/user/walletController"); // Import the wallet controller
 const { checkUserStatus } = require("../middleware/blockedStatus"); // Import middleware to check user's blocked status
 
 // Routes for adding and editing user addresses
@@ -172,6 +174,26 @@ router.post(
   profileController.changeForgotPassword
 );
 
+// Routes for wishlist
+router.post(
+  "/add-to-wishlist/:productId",
+  isAuth,
+  checkUserStatus,
+  wishlistController.addToWishlist
+);
+router.get(
+  "/remove-from-wishlist/:productId",
+  isAuth,
+  checkUserStatus,
+  wishlistController.removeFromWishlist
+);
+router.get(
+  "/wishlist",
+  isAuth,
+  checkUserStatus,
+  wishlistController.renderWishlistPage
+);
+
 // Routes for cart
 router.get(
   "/add-to-cart",
@@ -274,32 +296,91 @@ router.post(
 );
 
 router.post(
+  "/apply-coupon",
+  isAuth,
+  checkUserStatus,
+  checkoutController.validateAndApplyCoupon
+);
+
+router.post(
   "/orders/cancel-product/:customOrderId/:productId",
   isAuth,
   checkUserStatus,
   orderController.cancelProduct
 );
 
-// Routes for payment
-
-
+// Routes for wallet and payment
+router.get("/wallet", isAuth, checkUserStatus, walletController.getWalletPage);
+router.post(
+  "/orders/return/:customOrderId",
+  isAuth,
+  checkUserStatus,
+  orderController.returnOrderRequest
+);
+router.post(
+  "/orders/return-product/:customOrderId/:productId",
+  isAuth,
+  checkUserStatus,
+  orderController.returnProductRequest
+);
 router.post(
   "/process-payment",
   isAuth,
   checkUserStatus,
   orderController.processpayment
 );
-// router.post(
-//   "/create-order",
-//   isAuth,
-//   checkUserStatus, 
-//   orderController.createorder
-// );
-// router.get(
-//   "/orders/:customOrderId/invoice",
-//   isAuth,
-//   checkUserStatus,
-//   orderController.invoice
-// );
+router.post(
+  "/create-order",
+  isAuth,
+  checkUserStatus,
+  orderController.createorder
+);
+
+router.post('/process-payment', isAuth,
+  checkUserStatus, async (req, res) => {
+  try {
+    const paymentResponse = req.body.paymentResponse;
+
+    // Process payment here (e.g., save payment details, update order status, etc.)
+
+    // On successful payment processing
+    res.redirect('/order-success');
+  } catch (error) {
+    console.error('Error processing payment:', error);
+    res.redirect('/order-payment-fail');
+  }
+});
+
+// Route to render the success page
+router.get('/order-success', isAuth,
+  checkUserStatus,orderController.orderSuccess);
+
+// Route to render the failure page
+router.get('/order-payment-fail', isAuth,
+  checkUserStatus, (req, res) => {
+  res.render('orderPaymentFail'); // Assuming you have this view
+});
+
+router.get(
+  "/orders/:customOrderId/invoice",
+  isAuth,
+  checkUserStatus,
+  orderController.invoice
+);
+router.post(
+  "/repayment/process",
+  isAuth,
+  checkUserStatus,
+  orderController.repayment
+);
+router.post(
+  "/repayment/success",
+  isAuth,
+  checkUserStatus,
+  orderController.repaymentOrderCreation
+);
+router.post("/payment-fail", isAuth, orderController.paymentFail);
+router.post("/orderAbort/:customOrderId", isAuth, orderController.orderAbort);
+
 
 module.exports = router;

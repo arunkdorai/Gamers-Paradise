@@ -10,7 +10,26 @@ const getProduct = async (req, res) => {
   try {
     let page = +req.query.page || 1; // Get page number from query parameters or default to 1
     const ITEMS_PER_PAGE = 8;
-    const totalProducts = await productModel.countDocuments(); // Get total number of products
+
+    let query = {};
+    let searchQuery = '';
+
+    if (req.query.search) {
+      searchQuery = req.query.search.trim();
+      // Check if the search query is a valid MongoDB ObjectId
+      if (mongoose.Types.ObjectId.isValid(searchQuery)) {
+        query = { _id: searchQuery };
+      } else {
+        query = { 
+          $or: [
+            { product: { $regex: searchQuery, $options: 'i' } },
+            { category: { $regex: searchQuery, $options: 'i' } }
+          ]
+        };
+      }
+    }
+
+    const totalProducts = await productModel.countDocuments(query); // Get total number of products
     let totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE); // Calculate total number of pages
 
     // Adjust totalPages to at least 1 to prevent calculation errors when there are no products
@@ -28,7 +47,7 @@ const getProduct = async (req, res) => {
 
     // Find products with pagination
     const products = await productModel
-      .find()
+      .find(query)
       .skip(skipAmount)
       .limit(ITEMS_PER_PAGE);
 
@@ -49,6 +68,7 @@ const getProduct = async (req, res) => {
       currentPage: page,
       CatData: category,
       msg: msg,
+      searchQuery: searchQuery
     });
   } catch (error) {
     console.log("Error in getProduct:", error);
@@ -144,6 +164,8 @@ const editProduct = async (req, res) => {
     let updImages = [...exImage];
     const removedImagesPaths = req.body.removeImages ? req.body.removeImages.split(",").filter((path) => path) : [];
 
+    if (files.length > 0) {
+      // Process new uploaded images
     for (const file of files) {
       const resizedImageBuffer = await sharp(file.path)
         .resize(1200, 1200, { fit: 'fill' })
@@ -161,6 +183,8 @@ const editProduct = async (req, res) => {
 
       await fs.unlink(file.path);
     }
+    // Remove the paths of deleted images from the updImages array
+  }
 
     updImages = updImages.filter((img) => !removedImagesPaths.includes(img.path));
 
@@ -177,6 +201,7 @@ const editProduct = async (req, res) => {
         category: selectedCategory ? selectedCategory._id : product.category,
         stock: stock,
         about: about,
+        is_blocked: false,
         image: updImages,
       },
       { new: true }

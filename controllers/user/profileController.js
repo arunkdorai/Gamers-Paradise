@@ -93,7 +93,7 @@ const renderAddAddressPageorder = (req, res) => {
   res.render("add-addressorder", { fullName });
 };
 
-//function for create new address
+// Function for creating a new address
 const addAddress = async (req, res) => {
   try {
     const { address, addressline2, city, state, pincode } = req.body;
@@ -103,13 +103,22 @@ const addAddress = async (req, res) => {
       return res.status(403).redirect("/login");
     }
 
+    const user = await User.findById(userId).populate('addresses');
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const isFirstAddress = !user.addresses || user.addresses.length === 0;
+
     const newAddress = new Address({
       address,
       addressline2,
       city,
       state,
       pincode,
-      userId: req.session.userData._id,
+      userId: userId,
+      status: isFirstAddress
     });
 
     await newAddress.save();
@@ -119,19 +128,17 @@ const addAddress = async (req, res) => {
       $push: { addresses: newAddress._id },
     });
 
-    // Fetch user with populated addresses with status true
-    const user = await User.findById(userId).populate({
-      path: "addresses",
-      match: { status: true }, // Only populate addresses with status true
-    });
+    if (isFirstAddress) {
+      // If it's the first address, update the user's address status
+      await User.findByIdAndUpdate(userId, { addressStatus: true });
+    }
 
-    res.render("userprofile", {
-      user,
-      fullName: req.session.userData.fullname,
-    });
+    // Redirect or send a success response
+    res.status(200).redirect("/orderviewaddresses");
+
   } catch (error) {
     console.error("Error adding address:", error);
-    res.status(500).json({ error: "Failed to add address" });
+    res.status(500).json({ error: "An error occurred while adding the address" });
   }
 };
 
@@ -145,12 +152,15 @@ const addAddressorder = async (req, res) => {
       return res.status(403).redirect("/login");
     }
 
+    const user = await User.findById(userId).populate('addresses');
+    const isFirstAddress = !user.addresses || user.addresses.length === 0;
     const newAddress = new Address({
       address,
       addressline2,
       city,
       state,
       pincode,
+      status:isFirstAddress,
     });
 
     await newAddress.save();

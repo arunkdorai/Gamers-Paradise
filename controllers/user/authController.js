@@ -4,6 +4,7 @@ const { sendOTP } = require("../../helpers/otpService");
 const Product = require("../../models/productModel");
 const categoryModel = require("../../models/catergoryModel");
 const Address = require("../../models/addressModel");
+const Wallet = require("../../models/walletModel");
 
 //function for checking credentials of user to login
 const login = async (req, res) => {
@@ -74,6 +75,7 @@ const signup = async (req, res) => {
 
     // Generate OTP
     const otp = generateOTP();
+    const newWallet = await Wallet.create({ balance: 0 });
 
     // Save user data in session
     req.session.userData = {
@@ -81,6 +83,7 @@ const signup = async (req, res) => {
       phone,
       email,
       password: hashedPassword,
+      wallet: newWallet._id,
     };
     req.session.otp = otp;
 
@@ -103,8 +106,11 @@ const handleGoogleSignup = async (profile) => {
   try {
     // Check if user exists in the database
     let user = await User.findOne({ email: profile.emails[0].value });
+    let password="User@123"
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     if (!user) {
+      const newWallet = await Wallet.create({ balance: 0 });
       // Create new user
       user = new User({
         googleId: profile.id,
@@ -112,9 +118,17 @@ const handleGoogleSignup = async (profile) => {
         email: profile.emails[0].value,
         phone: profile.phone || null,
         googleuser: true,
+        wallet: newWallet._id,
+        password:hashedPassword,
         // Add other relevant user data here
       });
       await user.save();
+    } else {
+      if (!user.wallet) {
+        const newWallet = await Wallet.create({ balance: 0 });
+        user.wallet = newWallet._id;
+        await user.save();
+      }
     }
 
     return user;
@@ -125,7 +139,7 @@ const handleGoogleSignup = async (profile) => {
   }
 };
 
-//function for render forgot password page
+//function to render forgot password page
 const forgotpassword = async (req, res) => {
   res.render("forgotpassemail", { errorMessage: "" });
 };

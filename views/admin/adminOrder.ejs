@@ -93,6 +93,11 @@
         <li><a href="/admin/User"> <i class="fa fa-bar-chart"></i>User</a></li>
         <li><a href="/admin/Category"> <i class="icon-padnote"></i>Category</a></li>
         <li  class="active"><a href="/admin/order"> <i class="icon-paper-and-pencil"></i>Order</a></li>
+        <li><a href="/admin/coupons"> <i class="icon-three-cells"></i>Coupons</a></li>
+        <li>
+          <a href="/admin/sales">
+            <i class="icon-info"></i>Sales Report</a>
+        </li>
       </ul>
     </nav>
     <!-- Sidebar Navigation end-->
@@ -333,26 +338,26 @@
                       
                                   const subtotal = (grandTotalPrice - reducedPrice - returnedPrice - shippingFee - discountedAmount - tax).toFixed(2);
                                 %>
-                                <%= subtotal %>
+                                <%= order[i].status=='cancelled' ||order[i].status=='returned' ?0: subtotal %>
                               </td>
                             </tr>
                             <tr>
                               <td style="text-align: left">Shipping Fee</td>
                               <td style="text-align: left">
-                                <%= shippingFee %>
+                                <%= order[i].status=='cancelled' ||order[i].status=='returned' ?0:shippingFee %>
                               </td>
                             </tr>
                             <tr>
                               <td style="text-align: left">Tax</td>
                               <td style="text-align: left">
-                                <%= tax.toFixed(2) %>
+                                <%= order[i].status=='cancelled' ||order[i].status=='returned' ?0:((order[i].grandTotalPrice-order[i].reducedPrice-order[i].returnedPrice-45)/21).toFixed(2)%>
                               </td>
                             </tr>
                             <% if(order[i].coupon) { %>
                               <tr>
                                 <th style="text-align: left">Discount Amount</th>
                                 <th style="text-align: left">
-                                  <%= discountedAmount %>
+                                  <%= order[i].discountedAmount %>
                                 </th>
                               </tr>
                             <% } %>
@@ -384,7 +389,8 @@
                             <tr>
                               <th style="text-align: left">Total</th>
                               <th style="text-align: left">
-                                <%= (grandTotalPrice - reducedPrice - returnedPrice - discountedAmount).toFixed(2) %>
+                                <%= order[i].status=='cancelled' ||order[i].status=='returned' ?
+                                0:(grandTotalPrice - reducedPrice - returnedPrice - discountedAmount).toFixed(2) %>
                               </th>
                             </tr>
                             <tr>
@@ -587,6 +593,7 @@
     document.querySelectorAll('.return-order').forEach(button => {
       button.addEventListener('click', async function () {
         const orderId = this.dataset.orderId;
+        console.log(orderId)
 
         Swal.fire({
           title: 'Are you sure?',
