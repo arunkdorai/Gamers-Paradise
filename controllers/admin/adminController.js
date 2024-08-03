@@ -3,6 +3,7 @@ const Order = require("../../models/orderModel");
 const Category = require("../../models/catergoryModel");
 const Product = require("../../models/productModel");
 const PDFDocument = require("pdfkit");
+const ExcelJS = require('exceljs');
 const Coupon = require("../../models/couponModel");
 const bcrypt = require("bcrypt");
 //rendering admin login page
@@ -348,7 +349,7 @@ const downloadSalesReportPDF = async (req, res) => {
       "Product ID",
       "Price",
       "Quantity",
-      "Order ID",
+      "Order#",
       "Coupon",
       "Discount",
       "Total",
@@ -360,7 +361,7 @@ const downloadSalesReportPDF = async (req, res) => {
         product.product._id.toString(),
         product.product.price.toFixed(2),
         product.quantity,
-        order._id.toString(),
+        order.customOrderId.toString(),
         order.coupon ? order.coupon.code : "-",
         order.discountedAmount ? order.discountedAmount.toFixed(2) : "-",
         order.totalPrice ? order.totalPrice.toFixed(2) : "-",
@@ -386,6 +387,74 @@ const downloadSalesReportPDF = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
+  }
+};
+
+const downloadSalesReportExcel = async (req, res) => {
+  const startDate = new Date(req.query.startDate);
+  const endDate = new Date(req.query.endDate);
+  endDate.setDate(endDate.getDate() + 1); // Include the end date in the range
+
+  try {
+    const orders = await Order.find({
+      createdAt: { $gte: startDate, $lte: endDate },
+      status: "completed",
+    })
+      .sort({ createdAt: -1 })
+      .populate("products.product")
+      .populate("coupon")
+      .populate("user");
+
+    const salesData = calculateSalesData(orders);
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Sales Report');
+
+    // Add overall sales data
+    worksheet.addRow(['Overall Sales Report']);
+    worksheet.addRow(['Overall Sales Count', salesData.overallSalesCount]);
+    worksheet.addRow(['Overall Order Amount', salesData.overallOrderAmount]);
+    worksheet.addRow(['Overall Discount', salesData.overallDiscount]);
+    worksheet.addRow([]);
+
+    // Add order details
+    worksheet.addRow([
+      'Username',
+      'Product ID',
+      'Price',
+      'Quantity',
+      'Order#',
+      'Coupon',
+      'Discount',
+      'Total',
+      'Date'
+    ]);
+
+    orders.forEach(order => {
+      order.products.forEach(product => {
+        worksheet.addRow([
+          order.user ? order.user.fullname : '-',
+          product.product._id.toString(),
+          product.product.price,
+          product.quantity,
+          order.customOrderId.toString(),
+          order.coupon ? order.coupon.code : '-',
+          order.discountedAmount || '-',
+          order.totalPrice || '-',
+          order.createdAt.toDateString()
+        ]);
+      });
+    });
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=sales_report.xlsx');
+
+    await workbook.xlsx.write(res);
+    res.end();
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
   }
 };
 
@@ -631,5 +700,6 @@ module.exports = {
   getSalesReportPage,
   getSalesReportData,
   downloadSalesReportPDF,
+  downloadSalesReportExcel,
   adminDashboard,
 };

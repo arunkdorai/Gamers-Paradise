@@ -1,232 +1,3 @@
-/*
-const User = require("../../models/userModel");
-const Product = require("../../models/productModel");
-const categoryModel = require("../../models/catergoryModel");
-
-//function for product view
-const getProductView = async (req, res) => {
-  try {
-    // Retrieve the product ID from the request parameters
-    const productId = req.params.productId;
-
-    // Fetch the product details from the database based on the product ID
-    const product = await Product.findById(productId);
-
-    // Fetch similar products based on the category of the current product
-    const similarProducts = await Product.find({
-      category: product.category,
-      _id: { $ne: productId },
-      status: true,
-    }).limit(4);
-
-    // Initialize a variable to hold the full name of the user
-    let fullName = "";
-
-    // Check if userData exists in session
-    if (req.session.userData) {
-      // If userData exists, extract the email from it
-      const { email } = req.session.userData;
-
-      // Find the user in the database based on the email
-      const user = await User.findOne({ email, status: false });
-
-      // If user exists, assign the full name to the variable
-      if (user) {
-        fullName = user.fullname;
-      }
-    }
-
-    // Render the product view page and pass the product data, similar products, and full name to the template
-    return res.render("productView", { product, similarProducts, fullName });
-  } catch (error) {
-    // Handle errors appropriately, such as redirecting to an error page
-    res.redirect("/error");
-  }
-};
-
-//function for render console page
-const getConsoleProducts = async (req, res) => {
-  try {
-    let fullName = "";
-
-    // Check if userData exists in session
-    if (req.session.userData) {
-      const { email } = req.session.userData;
-      const user = await User.findOne({ email, status: false });
-
-      // If user exists, assign the full name to the variable
-      if (user) {
-        fullName = user.fullname;
-      }
-    }
-
-    // Find categories marked as "Console" that are not active (status: false)
-    const categories = await categoryModel.find({
-      category: "console",
-      status: true,
-    });
-
-    // Early return if no categories found
-    if (!categories.length) {
-      return res.render("console", { products: [], fullName });
-    }
-
-    // Map over categories to extract category names
-    const categoryNames = categories.map((cat) => cat.category);
-
-    // Find products that belong to any of the inactive "Console" categories
-    const consoleProducts = await Product.find({
-      category: { $in: categoryNames },
-      status: true,
-    });
-
-    // Render your view with products and user information
-    res.render("console", { products: consoleProducts, fullName });
-  } catch (error) {
-    console.error("Failed to fetch console products:", error);
-    res.status(500).send("Server error");
-  }
-};
-
-//function for render games page
-const getgamesProducts = async (req, res) => {
-  try {
-    let fullName = "";
-
-    if (req.session.userData) {
-      const { email } = req.session.userData;
-      const user = await User.findOne({ email, status: false });
-
-      if (user) {
-        fullName = user.fullname;
-      }
-    }
-
-    const categories = await categoryModel.find({
-      category: "Games",
-      status: true,
-    });
-
-    if (!categories.length) {
-      return res.render("games", { products: [], fullName });
-    }
-
-    const categoryNames = categories.map((cat) => cat.category);
-
-    const gamesProducts = await Product.find({
-      category: { $in: categoryNames },
-      status: true,
-    });
-
-    return res.render("games", { products: gamesProducts, fullName });
-  } catch (error) {
-    console.error("Error rendering games page:", error);
-    res.status(500).send("Internal Server Error");
-  }
-};
-
-//function for render computer page
-const getcomputerProducts = async (req, res) => {
-  try {
-    let fullName = "";
-
-    if (req.session.userData) {
-      const { email } = req.session.userData;
-      const user = await User.findOne({ email, status: false });
-
-      if (user) {
-        fullName = user.fullname;
-      }
-    }
-    const categories = await categoryModel.find({
-      category: "computer",
-      status: true,
-    });
-
-    if (!categories.length) {
-      return res.render("computer", { products: [], fullName });
-    }
-
-    const categoryNames = categories.map((cat) => cat.category);
-
-    const computerProducts = await Product.find({
-      category: { $in: categoryNames },
-      status: true,
-    });
-
-    return res.render("computer", { products: computerProducts, fullName });
-  } catch (error) {
-    console.error("Error rendering kid's page:", error);
-    res.status(500).send("Internal Server Error");
-  }
-};
-
-//function for accessories page
-const getaccessoriesProducts = async (req, res) => {
-  try {
-    let fullName = "";
-
-    if (req.session.userData) {
-      const { email } = req.session.userData;
-      const user = await User.findOne({ email, status: false });
-
-      if (user) {
-        fullName = user.fullname;
-      }
-    }
-    // Assuming 'Accessories' is a category or use a different check if needed
-    const categories = await categoryModel.find({ status: true });
-
-    if (!categories.length) {
-      return res.render("accessories", { categories, products: [], fullName });
-    }
-
-    const accessoriesProducts = await Product.find({ status: true });
-
-    return res.render("accessories", {
-      categories,
-      products: accessoriesProducts,
-      fullName,
-    });
-  } catch (error) {
-    console.error("Error rendering accessories page:", error);
-    res.status(500).send("Internal Server Error");
-  }
-};
-
-//function for render about page
-const about = async (req, res) => {
-  let fullName = "";
-
-  // Check if userData exists in session
-  if (req.session.userData) {
-    // If userData exists, extract the email from it
-    const { email } = req.session.userData;
-
-    // Find the user in the database based on the email
-    const user = await User.findOne({ email, status: false });
-
-    // If user exists, assign the full name to the variable
-    if (user) {
-      fullName = user.fullname;
-    }
-  }
-
-  // Render the console page and pass the console products data to the view
-  return res.render("about", { fullName });
-};
-
-module.exports = {
-  about,
-  getProductView,
-  getConsoleProducts,
-  getgamesProducts,
-  getcomputerProducts,
-  getaccessoriesProducts,
-};
-*/
-
-
 const bcrypt = require("bcrypt");
 const User = require("../../models/userModel");
 const Product = require("../../models/productModel");
@@ -846,11 +617,8 @@ const shopfilterProduct = async (req, res) => {
 //function for search option
 const search = async (req, res) => {
   try {
-    const { search } = req.body; // Retrieve the search query from the request body
+    const { search, category } = req.query; // Use req.query for GET requests // Retrieve the search query from the request body
 
-    // if (!search) {
-    //   return res.status(400).send("Search query is required");
-    // }
 
     let fullName = "";
     if (req.session.userData) {
@@ -862,17 +630,33 @@ const search = async (req, res) => {
       }
     }
 
-    // Perform a case-insensitive search across multiple fields
-    const products = await Product.find({
-      $or: [
+    // Build the query
+    let query = { status: true };
+
+    if (search) {
+      query.$or = [
         { product: { $regex: search, $options: "i" } },
         { description: { $regex: search, $options: "i" } },
-        { category: { $regex: search, $options: "i" } }
-      ],
-      status: true,
-    });
+      ];
+    }
 
-    res.render("searchResult", { products, fullName }); // Render the search results view
+    if (category && category !== '') {
+      query.category = category;
+    }
+
+    // Perform the search
+    const products = await Product.find(query);
+
+    // Fetch categories for the dropdown
+    const categories = await categoryModel.find({}, 'category');
+
+    res.render("searchResult", { 
+      products, 
+      fullName, 
+      categories,
+      search,
+      selectedCategory: category
+    });
   } catch (error) {
     console.error("Error occurred while searching for products:", error);
     res.status(500).send("Internal Server Error");

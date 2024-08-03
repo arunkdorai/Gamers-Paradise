@@ -121,6 +121,12 @@ router.get(
   adminController.downloadSalesReportPDF
 );
 
+router.get(
+  "/salesReport/downloadExcel",
+  adminAuth.isLogin,
+  adminController.downloadSalesReportExcel
+);
+
 // Order Details Report
 // router.get("/order-details", adminController.getOrderDetailsReport);
 

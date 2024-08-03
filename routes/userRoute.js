@@ -98,7 +98,7 @@ router.get("/computerfilter", userProductController.computerfilterProduct);
 router.get("/shop", userProductController.shopfilterProduct);
 router.get("/shopfilter", userProductController.shopfilterProduct);
 router.get("/about", userProductController.about);
-router.post("/search", userProductController.search);
+router.get("/search", userProductController.search);
 
 // Routes for user profile management
 router.get("/profile", isAuth, checkUserStatus, profileController.profile);

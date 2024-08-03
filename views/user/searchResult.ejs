@@ -99,11 +99,7 @@
         </ul>
       </div>
       <!-- Search Bar with Link -->
-      <form
-        class="form-inline my-2 my-lg-0 search-form"
-        action="/search"
-        method="POST"
-      >
+      <form class="form-inline my-2 my-lg-0 search-form" action="/search" method="GET">
         <input
           class="form-control mr-sm-2 search-input"
           type="search"
@@ -111,10 +107,27 @@
           aria-label="Search"
           name="search"
         />
+        <select name="category" id="category">
+          <option value="">Any Category</option>
+          <% for (let category of categories) { %>
+            <option value="<%= category.category %>" 
+                    <%= selectedCategory === category.category ? 'selected' : '' %>>
+              <%= category.category %>
+            </option>
+          <% } %>
+        </select>
         <button class="search-icon" type="submit">
           <i class="fas fa-search"></i>
         </button>
       </form>
+      <div class="search-params" hidden>
+        <% if (search) { %>
+          <p>Search term: <%= search %></p>
+        <% } %>
+        <% if (selectedCategory) { %>
+          <p>Category: <%= selectedCategory %></p>
+        <% } %>
+      </div>
       <!-- Wishlist Icon with Link -->
       <a href="/wishlist" class="wishlist-icon"><i class="fas fa-heart"></i></a>
       <!-- Add-to-Cart Icon with Link -->
