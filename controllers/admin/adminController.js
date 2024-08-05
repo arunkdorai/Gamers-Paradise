@@ -203,7 +203,7 @@ const getSalesReportPage = async (req, res) => {
   }
 };
 
-//fetching sales report data
+// fetching sales report data
 const getSalesReportData = async (req, res) => {
   const startDate = new Date(req.query.startDate);
   const endDate = new Date(req.query.endDate);
