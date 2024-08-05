@@ -63,7 +63,7 @@ const getConsoleProducts = async (req, res) => {
 
     // Find categories marked as "Console" that are not active (status: false)
     const categories = await categoryModel.find({
-      category: "console",
+      category: "Console",
       status: true,
     });
 
