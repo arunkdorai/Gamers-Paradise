@@ -705,7 +705,7 @@ const invoice = async (req, res) => {
     doc.image("public/images/logo.png", 50, 50, { width: 50 });
     doc.moveDown(3); // Add space after the logo
     doc
-      .fillColor("#bca374")
+      .fillColor("#552FA8")
       .fontSize(18)
       .text("Gamers Paradise", 400, 65, { align: "right" });
     doc.moveDown(0.5); // Add space before the customer name
@@ -738,7 +738,7 @@ const invoice = async (req, res) => {
       .fontSize(16)
       .text(`Invoice for Order #${order.customOrderId}`, { align: "center" });
       
-    doc.rect(50, boxTop, 500, boxHeight).stroke("#bca374").moveDown(1);;
+    doc.rect(50, boxTop, 500, boxHeight).stroke("#552FA8").moveDown(1);;
 
     // Add order details table inside the box
     const completedAndReturnedProducts = order.products.filter(
@@ -758,7 +758,7 @@ const invoice = async (req, res) => {
       boxTop + 30,
       [200, 100, 100],
       [100, 350, 450],
-      "#bca374",
+      "#552FA8",
       { align: "left" }
     );
 
@@ -780,7 +780,7 @@ const invoice = async (req, res) => {
 
     // Add order totals
     doc
-      .fillColor("#bca374")
+      .fillColor("#552FA8")
       .fontSize(14)
       .text("Order Totals:", 350, boxTop + boxHeight + 20);
     doc
@@ -860,7 +860,7 @@ const invoice = async (req, res) => {
     doc
       .moveTo(50, boxTop + boxHeight + 180)
       .lineTo(550, boxTop + boxHeight + 180)
-      .stroke("#bca374");
+      .stroke("#552FA8");
 
     doc.end();
   } catch (err) {
