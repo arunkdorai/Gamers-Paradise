@@ -67,8 +67,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Use userRoute for routes starting with '/'
-app.use("/", userRoute);
 app.use("/admin", adminRouter);
+app.use("/", userRoute);
+
 
 app.use((req, res, next) => {
   res.setHeader(

@@ -692,7 +692,7 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ amount, orderId }),
+            body: JSON.stringify({ amount, customOrderId }),
           })
             .then((response) => response.json())
             .then((data) => {
@@ -700,12 +700,12 @@
                 key: RAZORPAY_KEY_ID,
                 amount: amount,
                 currency: data.currency,
-                order_id: data.orderId,
+                order_id: data.customOrderId,
                 name: "Gamers Paradise",
                 description: "Order Payment",
                 image: "/images/logo.png",
                 handler: function (response) {
-                  handlePaymentSuccess(response, orderId);
+                  handlePaymentSuccess(response, customOrderId);
                 },
               };
 
