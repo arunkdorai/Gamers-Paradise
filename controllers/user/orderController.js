@@ -9,6 +9,7 @@ const Cart = require("../../models/addtocartModel");
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require("path");
+require("dotenv").config();
 const ITEMS_PER_PAGE = 5; // Number of orders per page
 
 //function for rendering user order list
@@ -578,6 +579,7 @@ const processpayment = async (req, res) => {
     const difference = grandTotalPrice - amount - discountedAmount; // Parse as float
     const activeAddress = user.addresses[0];
     const customOrderId = await Order.generateOrderId();
+    console.log(customOrderId)
     const order = await Order.create({
       user: req.session.userData._id,
       grandTotalPrice: grandTotalPrice,
@@ -632,7 +634,7 @@ const processpayment = async (req, res) => {
 
     req.session.cartData = [];
     await Cart.findOneAndUpdate({ userId: userId }, { cartItems: [] });
-req.session.order=order
+    req.session.order=order
     // 6. Redirect to the order success page or perform any other necessary actions
     // return res.status(200).render("orderSuccess", { orderId: order.customOrderId });
     return res.status(200).json({ success: true });
@@ -930,6 +932,9 @@ const paymentFail = async (req, res) => {
     const difference = grandTotalPrice - amount - discountedAmount; // Parse as float
     const activeAddress = user.addresses[0];
     const customOrderId = await Order.generateOrderId();
+
+    console.log("Order created with customOrderId:", customOrderId);
+
     const order = await Order.create({
       user: req.session.userData._id,
       totalPrice,
@@ -947,6 +952,8 @@ const paymentFail = async (req, res) => {
       coupon: coupon ? coupon._id : null,
       status: "paymentpending",
     });
+
+    req.session.customOrderId = customOrderId;
 
     if (
       totalPrice != 0 &&
@@ -998,13 +1005,12 @@ const paymentFail = async (req, res) => {
 //function for handle repayment using razorpay
 const repayment = async (req, res) => {
   try {
-    const { amount, customOrderId } = req.body;
-    req.session.orderPaymentPending = await Order.findOne(orderId);
+    const { amount } = req.body;
+    const customOrderId = req.session.customOrderId; // Retrieve from session
     req.session.amount = amount;
     const userId = req.session.userData._id;
     const receipt = `repayment_order_${customOrderId}`;
 
-    // Convert amount to paise
     const amountInPaise = Math.round(amount * 100);
 
     const options = {
@@ -1036,20 +1042,41 @@ const repayment = async (req, res) => {
 //function for create order for razor pay of failed payments order
 const repaymentOrderCreation = async (req, res) => {
   try {
-    const orderId = req.session.orderPaymentPending._id;
-    const order = await Order.findById(orderId);
+    let userId = req.session.userData._id;
+    let customOrderId = req.session.customOrderId;
+
+    if (!customOrderId) {
+      // Retrieve the most recent order with payment pending status
+      const recentOrder = await Order.findOne({ user: userId, status: "paymentpending" }).sort({ createdAt: -1 });
+      if (!recentOrder) {
+        return res.status(404).json({ error: "No pending order found" });
+      }
+      customOrderId = recentOrder.customOrderId;
+    }
+
+    const order = await Order.findOne({ customOrderId });
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
 
     order.status = "pending";
-
     order.products.forEach((product) => {
       if (product.status === "paymentpending") {
         product.status = "pending";
       }
     });
+
     await order.save();
+
+    // Clear the cart after successful payment
+    req.session.cartData = [];
+    await Cart.findOneAndUpdate({ userId: userId }, { cartItems: [] });
+    req.session.order=order
+
     res.status(201).redirect("/orders");
   } catch (err) {
-    console.error(err);
+    console.error("Error updating order status:", err);
     res.status(500).json({ error: "Something went wrong" });
   }
 };
@@ -1058,23 +1085,24 @@ const repaymentOrderCreation = async (req, res) => {
 const orderAbort = async (req, res) => {
   try {
     const orderId = req.params.customOrderId;
-    const order = await Order.findById(orderId);
+    const order = await Order.findOne({ customOrderId: orderId }); // Corrected
 
-    // Check if the order is already cancelled
-    if (order.status === "cancelled") {
-      return res
-        .status(400)
-        .json({ success: false, message: "Order is already cancelled" });
+    // Check if the order is found
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
     }
 
-    // Check if the order is completed
+    // Check if the order is already cancelled or completed
+    if (order.status === "cancelled") {
+      return res.status(400).json({ success: false, message: "Order is already cancelled" });
+    }
+
     if (order.status === "completed") {
       return res.status(400).redirect("/orders");
     }
 
-    // Update order status to "Cancelled"
+    // Update order status to "cancelled"
     order.status = "cancelled";
-
     order.products.forEach((product) => {
       if (product.status === "paymentpending") {
         product.status = "cancelled";
@@ -1094,13 +1122,8 @@ const orderAbort = async (req, res) => {
       })
     );
 
-    if (
-      order.paymentMethod !== "cash_on_delivery" &&
-      order.paymentMethod !== "pay_by_wallet"
-    ) {
-      const user = await User.findById(req.session.userData._id).populate(
-        "wallet"
-      );
+    if (order.paymentMethod !== "cash_on_delivery" && order.paymentMethod !== "pay_by_wallet") {
+      const user = await User.findById(req.session.userData._id).populate("wallet");
 
       if (!user || !user.wallet) {
         return res.status(404).json({ error: "User or wallet not found" });
@@ -1110,7 +1133,8 @@ const orderAbort = async (req, res) => {
         parseFloat(user.wallet.balance) +
         (order.walletAmount ? parseFloat(order.walletAmount) : 0)
       ).toFixed(2);
-      if (order.walletAmount!=0) {
+
+      if (order.walletAmount != 0) {
         // Add a new transaction to the wallet
         user.wallet.transactions.push({
           type: "credit",
@@ -1125,11 +1149,11 @@ const orderAbort = async (req, res) => {
     }
 
     const userId = req.session.userData._id;
-    const fullName = req.session.userData.fullname;
     const orders = await Order.find({ user: userId })
       .populate("address")
       .populate("products.product")
       .sort({ createdAt: -1 });
+
     res.status(200).redirect("/orders");
   } catch (error) {
     console.error("Error cancelling order:", error);

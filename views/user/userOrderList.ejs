@@ -15,48 +15,11 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/style.css" />
-    <style>
-      th {
-        text-align: center;
-      }
-      .ordertable {
-        align-items: center !important;
-        border: none;
-        margin-left: 8%;
-      }
-      table {
-        width: 100%;
-      }
-      .cardbody {
-        height: 500px;
-      }
-      body {
-        white-space: nowrap;
-      }
-      .container {
-        width: max-content !important;
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-      tr,
-      td {
-        width: max-content !important;
-        margin: 0;
-        align-items: left;
-      }
-      .pagination {
-        padding-left: 4.5%;
-        padding-top: 1%;
-      }
-      .userorder {
-        padding-left: 8.5%;
-      }
-    </style>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.min.css"
     />
+    <link rel="stylesheet" href="/css/order.css" />
   </head>
   <body>
     <!-- Navbar -->
@@ -115,179 +78,82 @@
     </nav>
 
     <div class="container">
-      <!-- Pagination section -->
-      <div class="pagination">
-        <ul class="pagination justify-content-center">
-          <% if (totalPages > 1) { %> <% if (currentPage > 1) { %>
-          <li class="page-item">
-            <a
-              class="page-link"
-              href="/orders?page=<%= currentPage - 1 %>"
-              aria-label="Previous"
-            >
-              <span aria-hidden="true">&laquo;</span>
-              <span class="sr-only">Previous</span>
-            </a>
-          </li>
-          <% } %> <% let startPage = Math.max(1, currentPage - 2); %> <% let
-          endPage = Math.min(startPage + 3, totalPages); %> <% for(let i =
-          startPage; i <= endPage; i++) { %>
-          <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-            <a class="page-link" href="/orders?page=<%= i %>"><%= i %></a>
-          </li>
-          <% } %> <% if (currentPage < totalPages) { %>
-          <li class="page-item">
-            <a
-              class="page-link"
-              href="/orders?page=<%= currentPage + 1 %>"
-              aria-label="Next"
-            >
-              <span aria-hidden="true">&raquo;</span>
-              <span class="sr-only">Next</span>
-            </a>
-          </li>
-          <% } %> <% } %>
-        </ul>
+      <h1 class="mb-4">Your orders</h1>
+      <div class="row">
+        <% orders.forEach(order => { %>
+          <div class="col-md-6 col-lg-4">
+            <div class="card order-card" style="min-width: 85%;">
+              <div class="card-header">
+                Order #<%= order.customOrderId %>
+              </div>
+              <div class="card-body">
+                <p><strong>Date:</strong> <%= order.createdAt.toDateString() %></p>
+                <p><strong>Status:</strong>
+                  <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                </p>
+                <p><strong>Address:</strong> <%= order.address.address %></p>
+
+                <div class="order-actions">
+                  <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#productDetailsModal-<%= order.customOrderId %>">
+                    View Products
+                  </button>
+                  <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#priceBreakdownModal-<%= order.customOrderId %>">
+                    View Price
+                  </button>
+                </div>
+                <div class="mt-3">
+                  <% if (order.status == 'completed') { %>
+                    <form action="/orders/return/<%= order.customOrderId %>" method="POST" class="d-inline">
+                      <button type="button" class="btn btn-sm btn-warning" onclick="confirmReturnOrder('<%= order.customOrderId %>')">
+                        Return Order
+                      </button>
+                    </form>
+                  <% } else if (order.status == 'returned') { %>
+                    <button type="button" class="btn btn-secondary" disabled>
+                      Order Returned
+                    </button>
+                  <% } else if (order.status == 'pending' || order.status == 'Dispatched' || order.status == 'In Transit') { %>
+                    <form action="/orders/cancel/<%= order.customOrderId %>" method="POST" class="d-inline">
+                      <button type="button" class="btn btn-sm btn-danger" onclick="confirmCancelOrder('<%= order.customOrderId %>')">
+                        Cancel Order
+                      </button>
+                    </form>
+                  <% } else if (order.status == 'cancelled') { %>
+                    <button type="button" class="btn btn-sm btn-secondary" disabled>
+                      Order Cancelled
+                    </button>
+                  <% } else if (order.status == 'returnrequest') { %>
+                    <button type="button" class="btn btn-sm btn-secondary" disabled>
+                      Requested for Return
+                    </button>
+                  <% } else if (order.status == 'paymentpending') { %>
+                    <form action="/repayment/process" method="POST" class="d-inline">
+                      <input type="hidden" name="orderId" value="<%= order.customOrderId %>" />
+                      <input type="hidden" name="amount" value="<%= order.totalPrice %>" />
+                      <button type="submit" class="btn btn-sm btn-warning">
+                        Proceed to Payment
+                      </button>
+                    </form>
+                    <form action="/orderAbort/<%= order.customOrderId %>" method="POST" class="d-inline">
+                      <input type="hidden" name="orderId" value="<%= order.customOrderId %>" />
+                      <input type="hidden" name="amount" value="<%= order.totalPrice %>" />
+                      <button type="submit" class="btn btn-warning">
+                        Abort
+                      </button>
+                    </form>
+                  <% } %>
+                  <% if (order.status === 'completed') { %>
+                    <a href="/orders/<%= order.customOrderId %>/invoice" target="_blank" class="btn btn-sm btn-secondary">
+                      Invoice
+                    </a>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% }); %>
       </div>
-
-      <h1 class="userorder">User Order List</h1>
-      <table class="table ordertable">
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>Date</th>
-            <th>Address</th>
-            <th>Status</th>
-            <th>Price Breakdown</th>
-            <th>Product</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% orders.forEach(order => { %>
-          <tr>
-            <td><%= order.customOrderId %></td>
-            <td><%= order.createdAt.toDateString() %></td>
-            <td><%= order.address.address %></td>
-            <td>
-              <% if (order.status === 'completed') { %>Completed<% } else if
-              (order.status == 'returned') { %>Returned<% } else if
-              (order.status === 'cancelled') { %>Cancelled<% } else if
-              (order.status == 'returnrequest') { %>Requested for return<% }
-              else if (order.status == 'paymentpending') { %>Payment pending <% }
-              else if (order.status == 'pending'){ %>Pending<% } else { %><%= order.status %>
-                <% } %>
-
-            </td>
-            <td>
-              <!-- Add the new button here -->
-              <button
-                class="btn btn-primary"
-                data-toggle="modal"
-                data-target="#priceBreakdownModal-<%= order.customOrderId %>"
-              >
-                View Price
-                <details></details>
-              </button>
-            </td>
-            <td>
-              <button
-                class="btn btn-primary"
-                data-toggle="modal"
-                data-target="#productDetailsModal-<%= order.customOrderId %>"
-              >
-                View Products
-              </button>
-              <br />
-              <br />
-              <% if (order.status == 'completed') { %>
-              <form
-                action="/orders/return/<%= order.customOrderId %>"
-                method="POST"
-                class="d-inline"
-              >
-                <button
-                  type="button"
-                  class="btn btn-warning"
-                  onclick="confirmReturnOrder('<%= order.customOrderId %>')"
-                >
-                  Return Order
-                </button>
-                <br />
-                <br />
-              </form>
-              <% } else if (order.status == 'returned') { %>
-              <button type="button" class="btn btn-secondary" disabled>
-                Order Returned
-              </button>
-              <br />
-              <br />
-              <% } else if (order.status == 'pending'|| order.status == 'Dispatched'|| order.status == 'In Transit') { %>
-              <form
-                action="/orders/cancel/<%= order.customOrderId %>"
-                method="POST"
-                class="d-inline"
-              >
-                <button
-                  type="button"
-                  class="btn btn-warning"
-                  onclick="confirmCancelOrder('<%= order.customOrderId %>')"
-                >
-                  Cancel Order
-                </button>
-                <br />
-                <br />
-              </form>
-              <% } else if (order.status == 'cancelled') { %>
-              <button type="button" class="btn btn-secondary" disabled>
-                Order Cancelled
-              </button>
-              <br />
-              <br />
-              <% } else if (order.status == 'returnrequest') { %>
-              <button type="button" class="btn btn-secondary" disabled>
-                Requested for Return
-              </button>
-              <br />
-              <br />
-              <% } else if (order.status == 'paymentpending') { %>
-              <form action="/repayment/process" method="POST" class="d-inline">
-                <input type="hidden" name="orderId" value="<%= order.customOrderId %>" />
-                <input
-                  type="hidden"
-                  name="amount"
-                  value="<%= order.totalPrice %>"
-                />
-                <button type="submit" class="btn btn-warning">
-                  Proceed to Payment
-                </button>
-                <br />
-                <br />
-              </form>
-              <form
-                action="/orderAbort/<%= order.customOrderId %>"
-                method="POST"
-                class="d-inline"
-              >
-                <input type="hidden" name="orderId" value="<%= order.customOrderId %>" />
-                <input
-                  type="hidden"
-                  name="amount"
-                  value="<%= order.totalPrice %>"
-                />
-                <button type="submit" class="btn btn-warning">Abort</button>
-                <br />
-                <br />
-              </form>
-              <% } %> <% if (order.status === 'completed') { %>
-              <a href="/orders/<%= order.customOrderId %>/invoice" target="_blank" class="btn btn-primary"
-                >Invoice</a
-              >
-              <% } %>
-            </td>
-          </tr>
-          <% }); %>
-        </tbody>
-      </table>
+      
       <% orders.forEach(order => { %>
       <div
         class="modal fade"
@@ -528,6 +394,40 @@
       </div>
       <% }); %>
     </div>
+          <!-- Pagination section -->
+          <div class="pagination">
+            <ul class="pagination justify-content-center">
+              <% if (totalPages > 1) { %> <% if (currentPage > 1) { %>
+              <li class="page-item">
+                <a
+                  class="page-link"
+                  href="/orders?page=<%= currentPage - 1 %>"
+                  aria-label="Previous"
+                >
+                  <span aria-hidden="true">&laquo;</span>
+                  <span class="sr-only">Previous</span>
+                </a>
+              </li>
+              <% } %> <% let startPage = Math.max(1, currentPage - 2); %> <% let
+              endPage = Math.min(startPage + 3, totalPages); %> <% for(let i =
+              startPage; i <= endPage; i++) { %>
+              <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                <a class="page-link" href="/orders?page=<%= i %>"><%= i %></a>
+              </li>
+              <% } %> <% if (currentPage < totalPages) { %>
+              <li class="page-item">
+                <a
+                  class="page-link"
+                  href="/orders?page=<%= currentPage + 1 %>"
+                  aria-label="Next"
+                >
+                  <span aria-hidden="true">&raquo;</span>
+                  <span class="sr-only">Next</span>
+                </a>
+              </li>
+              <% } %> <% } %>
+            </ul>
+          </div>
     <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
@@ -692,7 +592,7 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ amount, customOrderId }),
+            body: JSON.stringify({ amount, orderId }),
           })
             .then((response) => response.json())
             .then((data) => {
@@ -700,12 +600,12 @@
                 key: RAZORPAY_KEY_ID,
                 amount: amount,
                 currency: data.currency,
-                order_id: data.customOrderId,
+                order_id: data.orderId,
                 name: "Gamers Paradise",
                 description: "Order Payment",
                 image: "/images/logo.png",
                 handler: function (response) {
-                  handlePaymentSuccess(response, customOrderId);
+                  handlePaymentSuccess(response, orderId);
                 },
               };
 
@@ -733,6 +633,8 @@
           .then((res) => res.json())
           .then((data) => {
             console.log(data);
+            // Reload the page after successful fetch
+            window.location.href = '/orders';
           })
           .catch((error) =>
             console.error("Payment success handler error:", error)
@@ -744,7 +646,7 @@
       if (rzp1) {
         rzp1.close(); // Close the Razorpay modal
       }
-      window.reload();
+      window.location.href = '/orders';
       console.error("Payment failed:", response);
     }
   });
