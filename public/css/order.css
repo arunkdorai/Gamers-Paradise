@@ -13,7 +13,7 @@ body {
   /* Navbar styles */
   /* CSS for Navbar */
   .nav-link {
-    color: #bca374 !important;
+    color: #552FA8 !important;
   }
   
   .navbar {
@@ -30,20 +30,20 @@ body {
   }
   
   .navbar .nav-link {
-    color: #bca374;
+    color: #552FA8;
     font-weight: bold;
     font-size: 1.3vw;
   }
   
   .navbar .login {
-    color: #bca374;
+    color: #552FA8;
     font-weight: bold;
     font-size: 1.3vw;
     margin-left: 10px; /* Add margin to separate from other links */
   }
   
   .navbar-toggler {
-    color: #bca374;
+    color: #552FA8;
     font-size: 1.3vw;
   }
   
@@ -59,15 +59,15 @@ body {
     width: 100%;
     max-width: 15vw;
     border: none;
-    border-bottom: 2px solid #bca374;
+    border-bottom: 2px solid #552FA8;
     background-color: transparent;
-    color: #bca374;
+    color: #552FA8;
     padding: 1%;
     font-size: 1.3vw;
   }
   
   .search-icon {
-    color: #bca374;
+    color: #552FA8;
     font-size: 1.5vw;
     cursor: pointer;
     background: transparent; /* Remove background color */
@@ -76,21 +76,21 @@ body {
   
   .wishlist-icon,
   .cart-icon {
-    color: #bca374;
+    color: #552FA8;
     font-size: 1.5vw;
     margin-right: 10px;
   }
   
   .filter-toggle {
     display: none; /* Hide the filter toggle by default */
-    color: #bca374;
+    color: #552FA8;
     font-size: 1vw;
     cursor: pointer;
     margin-right: 10px;
   }
   
   .filter-toggle-icon {
-    color: #bca374; /* Set the color of the filter toggle icon */
+    color: #552FA8; /* Set the color of the filter toggle icon */
     font-size: 1vw;
     cursor: pointer;
     margin-right: 10px;
@@ -110,7 +110,7 @@ body {
   }
   
   .filter-title {
-    color: #bca374;
+    color: #552FA8;
     font-weight: bold;
     margin-bottom: 10px;
   }
@@ -126,7 +126,7 @@ body {
   }
   
   .filter-options li label {
-    color: #bca374;
+    color: #552FA8;
     margin-right: 5px;
   }
   
