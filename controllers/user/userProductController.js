@@ -140,7 +140,7 @@ const getcomputerProducts = async (req, res) => {
       }
     }
     const categories = await categoryModel.find({
-      category: "computer",
+      category: "Computer",
       status: true,
     });
 
@@ -449,73 +449,6 @@ const computerfilterProduct = async (req, res) => {
   }
 };
 
-//function for render shop page with filter or sort
-// const shopfilterProduct = async (req, res) => {
-//   try {
-//     const { category, price, sort } = req.query;
-
-//     let filter = {};
-//     if (category) {
-//       filter.category = category; // Directly assign category to filter
-//     }
-
-//     if (price) {
-//       const [min, max] = price.split("-").map(Number);
-//       filter.price = { $gte: min, $lte: max }; // Directly use $gte and $lte
-//     }
-
-//     let sortOptions = {};
-//     switch (sort) {
-//       case "priceAsc":
-//         sortOptions.price = 1;
-//         break;
-//       case "priceDesc":
-//         sortOptions.price = -1;
-//         break;
-//       case "ratings":
-//         sortOptions.ratings = -1;
-//         break;
-//       case "featured":
-//         sortOptions.featured = -1;
-//         break;
-//       case "newArrivals":
-//         sortOptions.createdAt = -1;
-//         break;
-//       case "aToZ":
-//         sortOptions.product = 1;
-//         break;
-//       case "zToA":
-//         sortOptions.product = -1;
-//         break;
-//       default:
-//         break;
-//     }
-
-//     let fullName = "";
-//     if (req.session.userData) {
-//       const { email } = req.session.userData;
-//       const user = await User.findOne({ email, status: false });
-
-//       if (user) {
-//         fullName = user.fullname;
-//       }
-//     }
-
-//     const categories = await categoryModel.find({ status: true });
-
-//     if (!categories.length) {
-//       return res.render("shop", { categories, products: [], fullName });
-//     }
-
-//     const queryObject = { status: true, ...filter };
-//     const products = await Product.find(queryObject).sort(sortOptions);
-
-//     res.render("shop", { categories, products, fullName });
-//   } catch (err) {
-//     console.error("Error filtering products:", err);
-//     res.status(500).send("Internal Server Error");
-//   }
-// };
 
 const shopfilterProduct = async (req, res) => {
   try {

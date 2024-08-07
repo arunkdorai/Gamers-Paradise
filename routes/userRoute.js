@@ -379,8 +379,8 @@ router.post(
   checkUserStatus,
   orderController.repaymentOrderCreation
 );
-router.post("/payment-fail", isAuth, orderController.paymentFail);
-router.post("/orderAbort/:customOrderId", isAuth, orderController.orderAbort);
+router.post("/payment-fail", isAuth, checkUserStatus, orderController.paymentFail);
+router.post("/orderAbort/:customOrderId", isAuth, checkUserStatus, orderController.orderAbort);
 
 
 module.exports = router;
