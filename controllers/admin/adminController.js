@@ -358,10 +358,10 @@ const downloadSalesReportPDF = async (req, res) => {
     const tableData = orders.flatMap((order) =>
       order.products.map((product) => [
         order.user ? order.user.fullname : "-",
-        product.product._id.toString(),
+        product.product.product.toString(),
         product.product.price.toFixed(2),
         product.quantity,
-        order.customOrderId.toString(),
+        order.customOrderId,
         order.coupon ? order.coupon.code : "-",
         order.discountedAmount ? order.discountedAmount.toFixed(2) : "-",
         order.totalPrice ? order.totalPrice.toFixed(2) : "-",

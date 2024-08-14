@@ -7,16 +7,30 @@ const Category = require("../../models/catergoryModel");
 // Function to get all coupons
 const getAllCoupons = async (req, res) => {
   try {
-    const page = req.query.page || 1;
-    const perPage = 10; // Number of coupons per page
+    // Get the page number from query parameters, default to 1 if not present
+    const page = parseInt(req.query.page, 10) || 1;
+    const perPage = 5; // Number of coupons per page
 
+    // Ensure page number is a positive integer
+    if (page < 1) {
+      return res.redirect('/admin/coupons?page=1');
+    }
+
+    // Fetch total number of coupons
     const totalCoupons = await Coupon.countDocuments();
     const totalPages = Math.ceil(totalCoupons / perPage);
 
+    // Handle case where requested page number is greater than the total pages
+    if (page > totalPages) {
+      return res.redirect(`/admin/coupons?page=${totalPages}`);
+    }
+
+    // Fetch coupons for the current page
     const coupons = await Coupon.find()
       .skip((page - 1) * perPage)
       .limit(perPage);
 
+    // Render the coupons page
     res.render("adminCoupon", {
       coupons: coupons,
       currentPage: page,

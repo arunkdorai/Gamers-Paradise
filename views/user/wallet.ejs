@@ -84,27 +84,6 @@
           <% } %>
         </div>
 
-        <!-- Pagination -->
-        <ul class="pagination">
-          <% if (currentPage > 1) { %>
-          <li class="page-item">
-            <a class="page-link" href="/wallet?page=<%= currentPage - 1 %>"
-              >Previous</a
-            >
-          </li>
-          <% } %> <% for (let i = 1; i <= totalPages; i++) { %>
-          <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-            <a class="page-link" href="/wallet?page=<%= i %>"><%= i %></a>
-          </li>
-          <% } %> <% if (currentPage < totalPages) { %>
-          <li class="page-item">
-            <a class="page-link" href="/wallet?page=<%= currentPage + 1 %>"
-              >Next</a
-            >
-          </li>
-          <% } %>
-        </ul>
-
         <div class="wallet-transactions mb-4">
           <h2>Transaction History</h2>
           <% if (wallet && wallet.transactions && wallet.transactions.length >
@@ -133,8 +112,29 @@
           <p>No transactions found.</p>
           <% } %>
         </div>
+                    <!-- Pagination -->
+                    <ul class="pagination justify-content-center">
+                      <% if (currentPage > 1) { %>
+                      <li class="page-item">
+                        <a class="page-link" href="/wallet?page=<%= currentPage - 1 %>"
+                          >Previous</a
+                        >
+                      </li>
+                      <% } %> <% for (let i = 1; i <= totalPages; i++) { %>
+                      <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <a class="page-link" href="/wallet?page=<%= i %>"><%= i %></a>
+                      </li>
+                      <% } %> <% if (currentPage < totalPages) { %>
+                      <li class="page-item">
+                        <a class="page-link" href="/wallet?page=<%= currentPage + 1 %>"
+                          >Next</a
+                        >
+                      </li>
+                      <% } %>
+                    </ul>
       </div>
     </main>
+
 
     <footer class="main-footer mt-5">
       <!-- Footer content -->

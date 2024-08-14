@@ -160,39 +160,6 @@
         </div>
 
         <div class="table-responsive" style="padding: 5%">
-          <!-- Pagination section -->
-
-          <ul class="pagination justify-content-center">
-            <% if (totalPages > 1) { %> <% if (currentPage > 1) { %>
-            <li class="page-item">
-              <a
-                class="page-link"
-                href="/admin/User?page=<%= currentPage - 1 %>"
-                aria-label="Previous"
-              >
-                <span aria-hidden="true">&laquo;</span>
-                <span class="sr-only">Previous</span>
-              </a>
-            </li>
-            <% } %> <% let startPage = Math.max(1, currentPage - 2); %> <% let
-            endPage = Math.min(startPage + 3, totalPages); %> <% for(let i =
-            startPage; i <= endPage; i++) { %>
-            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-              <a class="page-link" href="/admin/User?page=<%= i %>"><%= i %></a>
-            </li>
-            <% } %> <% if (currentPage < totalPages) { %>
-            <li class="page-item">
-              <a
-                class="page-link"
-                href="/admin/User?page=<%= currentPage + 1 %>"
-                aria-label="Next"
-              >
-                <span aria-hidden="true">&raquo;</span>
-                <span class="sr-only">Next</span>
-              </a>
-            </li>
-            <% } %> <% } %>
-          </ul>
 
           <table class="table">
             <thead>
@@ -245,6 +212,39 @@
             </tbody>
           </table>
         </div>
+                  <!-- Pagination section -->
+
+                  <ul class="pagination justify-content-center">
+                    <% if (totalPages > 1) { %> <% if (currentPage > 1) { %>
+                    <li class="page-item">
+                      <a
+                        class="page-link"
+                        href="/admin/User?page=<%= currentPage - 1 %>"
+                        aria-label="Previous"
+                      >
+                        <span aria-hidden="true">&laquo;</span>
+                        <span class="sr-only">Previous</span>
+                      </a>
+                    </li>
+                    <% } %> <% let startPage = Math.max(1, currentPage - 2); %> <% let
+                    endPage = Math.min(startPage + 3, totalPages); %> <% for(let i =
+                    startPage; i <= endPage; i++) { %>
+                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                      <a class="page-link" href="/admin/User?page=<%= i %>"><%= i %></a>
+                    </li>
+                    <% } %> <% if (currentPage < totalPages) { %>
+                    <li class="page-item">
+                      <a
+                        class="page-link"
+                        href="/admin/User?page=<%= currentPage + 1 %>"
+                        aria-label="Next"
+                      >
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">Next</span>
+                      </a>
+                    </li>
+                    <% } %> <% } %>
+                  </ul>
       </div>
       <footer class="footer">
         <div class="footer__block block no-margin-bottom"></div>

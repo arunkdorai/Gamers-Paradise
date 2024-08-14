@@ -232,22 +232,6 @@
        <!-- Display existing coupons -->
 <div class="container mt-5">
   <h2 class="h3 mb-4">Existing Coupons</h2>
-  <!-- Pagination -->
-<div class="d-flex justify-content-center">
-  <nav aria-label="Page navigation example">
-    <ul class="pagination">
-      <% if (currentPage > 1) { %>
-      <li class="page-item"><a class="page-link" href="/admin/coupons?page=<%= currentPage - 1 %>">Previous</a></li>
-      <% } %>
-      <% for (let i = 1; i <= totalPages; i++) { %>
-      <li class="page-item <%= currentPage == i ? 'active' : '' %>"><a class="page-link" href="/admin/coupons?page=<%= i %>"><%= i %></a></li>
-      <% } %>
-      <% if (currentPage < totalPages) { %>
-      <li class="page-item"><a class="page-link" href="/admin/coupons?page=<%= currentPage + 1 %>">Next</a></li>
-      <% } %>
-    </ul>
-  </nav>
-</div>
 
   <table class="table">
     <thead>
@@ -344,6 +328,23 @@
   </div>
 </div>
 <% }) %>
+
+  <!-- Pagination -->
+  <div class="d-flex justify-content-center">
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <% if (currentPage > 1) { %>
+        <li class="page-item"><a class="page-link" href="/admin/coupons?page=<%= currentPage - 1 %>">Previous</a></li>
+        <% } %>
+        <% for (let i = 1; i <= totalPages; i++) { %>
+        <li class="page-item <%= currentPage == i ? 'active' : '' %>"><a class="page-link" href="/admin/coupons?page=<%= i %>"><%= i %></a></li>
+        <% } %>
+        <% if (currentPage < totalPages) { %>
+        <li class="page-item"><a class="page-link" href="/admin/coupons?page=<%= currentPage + 1 %>">Next</a></li>
+        <% } %>
+      </ul>
+    </nav>
+  </div>
 <footer class="footer">
   <div class="footer__block block no-margin-bottom"></div>
 </footer>
