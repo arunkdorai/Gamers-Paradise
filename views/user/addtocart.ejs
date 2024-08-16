@@ -509,7 +509,6 @@
         const shippingInput = document.getElementById("shipping");
         const taxInput = document.getElementById("tax");
         checkoutForm.addEventListener("submit", async function (event) {
-          console.log("Form submitted");
           event.preventDefault();
           // Check for out-of-stock products
           const outOfStockProducts = document.querySelectorAll(".product[data-stock='0']");

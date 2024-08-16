@@ -599,7 +599,6 @@ document.addEventListener("DOMContentLoaded", function () {
       image: '/images/logo.png',
       order_id: data.id,
       handler: function (response) {
-        console.log(response);
         processPayment(response);
       },
       prefill: {

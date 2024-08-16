@@ -256,7 +256,6 @@ const setActiveAddress = async (req, res) => {
       $set: { status: true },
     });
 
-    console.log("addr:", addr);
     res.redirect("/view-addresses");
   } catch (err) {
     console.error("Error setting active address:", err);
@@ -288,7 +287,6 @@ const updateAddressStatus = async (req, res) => {
     // Set the selected address as active
     await Address.findByIdAndUpdate(addressId, { $set: { status: true } });
     // Optionally, you can send back the updated address or a success message
-    console.log(updatedAddress,updatedAddress.status);
     res.status(200).json({
       message: "Address status updated successfully.",
       address: updatedAddress,

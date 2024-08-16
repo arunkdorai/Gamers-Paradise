@@ -148,7 +148,6 @@ const forgotmail = async (req, res) => {
   try {
     const { email } = req.body;
     req.session.email = email;
-    console.log(email);
     // Check if user with the provided email exists
     const existingUser = await User.findOne({ email });
 

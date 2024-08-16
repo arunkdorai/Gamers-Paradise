@@ -311,11 +311,8 @@
   <script src="js/front.js"></script>
   <script>
    function validateCategoryForm(form) {
-  console.log("Form submitted"); // Check if the function is being called
   var categoryInput = form.querySelector('input[name="category"]');
   var category = categoryInput.value;
-
-  console.log("Category value:", category); // Check the value of the category input
 
   // Regular expression for validation
   var categoryRegex = /^[a-zA-Z\s]+$/; // Matches only alphabets and spaces
@@ -344,7 +341,6 @@
     return false;
   }
 
-  console.log("Validation successful"); // Check if validation passes
   return true;
 }
 

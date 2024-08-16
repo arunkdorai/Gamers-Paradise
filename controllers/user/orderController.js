@@ -579,7 +579,6 @@ const processpayment = async (req, res) => {
     const difference = grandTotalPrice - amount - discountedAmount; // Parse as float
     const activeAddress = user.addresses[0];
     const customOrderId = await Order.generateOrderId();
-    console.log(customOrderId)
     const order = await Order.create({
       user: req.session.userData._id,
       grandTotalPrice: grandTotalPrice,
@@ -932,8 +931,6 @@ const paymentFail = async (req, res) => {
     const difference = grandTotalPrice - amount - discountedAmount; // Parse as float
     const activeAddress = user.addresses[0];
     const customOrderId = await Order.generateOrderId();
-
-    console.log("Order created with customOrderId:", customOrderId);
 
     const order = await Order.create({
       user: req.session.userData._id,

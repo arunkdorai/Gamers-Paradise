@@ -347,7 +347,6 @@ const returnProductAsAdmin = async (req, res) => {
     }
 
     const user = await User.findById(order.user).populate("wallet");
-    console.log(order.user);
 
     if (!user || !user.wallet) {
       return res.status(404).json({ error: "User or wallet not found" });
@@ -408,7 +407,6 @@ const returnOrder = async (req, res) => {
     );
 
     await order.save();
-    console.log("order", order);
     // Restore product quantities
     await Promise.all(
       order.products.map(async (orderItem) => {
@@ -447,7 +445,6 @@ const returnOrder = async (req, res) => {
     order.returnedPrice +=
       parseFloat(order.grandTotalPrice - order.discountedAmount) - reduceTotal;
     await order.save();
-    console.log("order", order);
     return res.status(200).redirect("/admin/order");
   } catch (err) {
     console.error(err);

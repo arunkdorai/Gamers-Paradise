@@ -326,7 +326,6 @@
           const addToCartButton = card.querySelector(".add-to-cart"); // Find the add-to-cart button within the card
 
           const stock = parseInt(card.dataset.stock); // Get the stock quantity from the data attribute
-console.log(stock);
           if (stock <= 0) {
             stockStatus.textContent = "Out of Stock";
             stockStatus.style.color = "red";

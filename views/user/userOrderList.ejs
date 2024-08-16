@@ -588,7 +588,6 @@ function confirmCancelOrder(orderId) {
   document.addEventListener("DOMContentLoaded", function () {
     const orderId = this.querySelector('input[name="orderId"]').value;
     const amount = this.querySelector('input[name="amount"]').value * 100; // Convert amount to paise
-    console.log("amount:", amount);
     rzp1 = new Razorpay({
       key: RAZORPAY_KEY_ID,
       amount: amount,
@@ -618,7 +617,6 @@ function confirmCancelOrder(orderId) {
           const orderId = this.querySelector('input[name="orderId"]').value;
           const amount =
             this.querySelector('input[name="amount"]').value * 100; // Convert amount to paise
-          console.log("amount:", amount);
 
           fetch("/repayment/process", {
             method: "POST",
