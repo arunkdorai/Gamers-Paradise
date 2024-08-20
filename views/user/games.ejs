@@ -63,10 +63,28 @@
         cursor: pointer; /* Add cursor pointer */
         font-size: 16px; /* Set font size */
       }
+
+      .clear-filter-btn {
+        background-color: #af0000; /* Set background color */
+        color: #fff; /* Set text color */
+        padding: 10px 20px; /* Add padding */
+        border: none; /* Remove border */
+        border-radius: 5px; /* Add border radius */
+        cursor: pointer; /* Add cursor pointer */
+        font-size: 16px; /* Set font size */
+      }
     
       /* Hover effect for submit button */
       .filter-submit-btn:hover {
         background-color: #552FA8; /* Change background color on hover */
+      }
+
+      .pagination-controls {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .pagination-controls .btn {
+        margin: 0 5px;
       }
     </style>
     
@@ -145,7 +163,7 @@
     </nav>
     <body>
 
-      <form class="form-inline ml-2" action="/gamesfilter" method="GET">
+      <form class="form-inline ml-2" action="/games" method="GET">
         <label for="price">Price Range:</label>
         <select class="mr-2" name="price" id="price" aria-placeholder="">
           <option value="">Any Price</option>
@@ -168,6 +186,7 @@
             <option value="zToA">Z-A</option>
         </select>
         <button class="filter-submit-btn" type="submit">Apply Filter</button>
+        <button class="clear-filter-btn" type="button" onclick="clearFilters()">Clear Filters</button>
     </form>
     
     <!-- Item Cards -->
@@ -230,6 +249,20 @@
         </div>
       </div>
     </div>
+    <div class="pagination-controls">
+      <% if (typeof currentPage !== 'undefined' && typeof totalPages !== 'undefined') { %>
+        <% if (currentPage > 1) { %>
+          <a href="?page=<%= currentPage - 1 %><%= filterQueryString %>" class="btn btn-primary">Previous</a>
+        <% } %>
+        <span>Page <%= currentPage %> of <%= totalPages %></span>
+        <% if (currentPage < totalPages) { %>
+          <a href="?page=<%= currentPage + 1 %><%= filterQueryString %>" class="btn btn-primary">Next</a>
+        <% } %>
+      <% } else { %>
+        <p>Pagination information is not available.</p>
+      <% } %>
+    </div>
+    <br><br>
 
     <!-- Main Footer -->
     <footer class="main-footer">
@@ -298,5 +331,22 @@
         });
       });
     </script>
+        <script>
+          // Retain filter selections
+          document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            document.getElementById('price').value = urlParams.get('price') || '';
+            document.getElementById('sort').value = urlParams.get('sort') || '';
+          });
+        
+          // Clear filters
+          function clearFilters() {
+            document.getElementById('price').value = '';
+            document.getElementById('sort').value = '';
+            // document.getElementById('filterForm').submit();
+            window.location.href = '/games';
+          }
+        </script>
   </body>
 </html>

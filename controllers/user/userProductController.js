@@ -49,50 +49,108 @@ const getProductView = async (req, res) => {
 const getConsoleProducts = async (req, res) => {
   try {
     let fullName = "";
+    const page = parseInt(req.query.page) || 1;
+    const limit = 9; // Number of products per page
+    const skip = (page - 1) * limit;
+    const { price, sort } = req.query;
 
-    // Check if userData exists in session
     if (req.session.userData) {
       const { email } = req.session.userData;
       const user = await User.findOne({ email, status: false });
 
-      // If user exists, assign the full name to the variable
       if (user) {
         fullName = user.fullname;
       }
     }
 
-    // Find categories marked as "Console" that are not active (status: false)
+    // Find categories marked as "Console" that are active (status: true)
     const categories = await categoryModel.find({
       category: "Console",
       status: true,
     });
 
-    // Early return if no categories found
     if (!categories.length) {
       return res.render("console", { products: [], fullName });
     }
 
-    // Map over categories to extract category names
-    const categoryNames = categories.map((cat) => cat.category);
-
-    // Find products that belong to any of the inactive "Console" categories
-    const consoleProducts = await Product.find({
-      category: { $in: categoryNames },
+    // Prepare filter object
+    let filter = {
+      category: { $in: categories.map((cat) => cat.category) },
       status: true,
-    });
+    };
 
-    // Render your view with products and user information
-    res.render("console", { products: consoleProducts, fullName });
+    if (price) {
+      const [min, max] = price.split("-").map(Number);
+      filter.price = { $gte: min, $lte: max };
+    }
+
+    // Prepare sort options
+    let sortOptions = {};
+    switch (sort) {
+      case "priceAsc":
+        sortOptions.price = 1;
+        break;
+      case "priceDesc":
+        sortOptions.price = -1;
+        break;
+      case "ratings":
+        sortOptions.ratings = -1;
+        break;
+      case "featured":
+        sortOptions.featured = -1;
+        break;
+      case "newArrivals":
+        sortOptions.createdAt = -1;
+        break;
+      case "aToZ":
+        sortOptions.product = 1;
+        break;
+      case "zToA":
+        sortOptions.product = -1;
+        break;
+      default:
+        break;
+    }
+
+    const totalProducts = await Product.countDocuments(filter);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const products = await Product.find(filter)
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(limit);
+
+    // Create a query string for pagination links
+    const filterQueryString = Object.entries(req.query)
+      .filter(([key]) => key !== 'page')
+      .map(([key, value]) => `&${key}=${value}`)
+      .join('');
+
+    const renderData = {
+      products,
+      fullName,
+      currentPage: page,
+      totalPages,
+      filterQueryString,
+      filters: req.query
+    };
+
+    res.render("console", renderData);
   } catch (error) {
     console.error("Failed to fetch console products:", error);
     res.status(500).send("Server error");
   }
 };
 
+
 //function for render games page
 const getgamesProducts = async (req, res) => {
   try {
     let fullName = "";
+    const page = parseInt(req.query.page) || 1;
+    const limit = 12; // Number of products per page
+    const skip = (page - 1) * limit;
+    const { price, sort } = req.query;
 
     if (req.session.userData) {
       const { email } = req.session.userData;
@@ -112,24 +170,81 @@ const getgamesProducts = async (req, res) => {
       return res.render("games", { products: [], fullName });
     }
 
-    const categoryNames = categories.map((cat) => cat.category);
-
-    const gamesProducts = await Product.find({
-      category: { $in: categoryNames },
+    let filter = {
+      category: { $in: categories.map((cat) => cat.category) },
       status: true,
-    });
+    };
 
-    return res.render("games", { products: gamesProducts, fullName });
+    if (price) {
+      const [min, max] = price.split("-").map(Number);
+      filter.price = { $gte: min, $lte: max };
+    }
+
+    let sortOptions = {};
+    switch (sort) {
+      case "priceAsc":
+        sortOptions.price = 1;
+        break;
+      case "priceDesc":
+        sortOptions.price = -1;
+        break;
+      case "ratings":
+        sortOptions.ratings = -1;
+        break;
+      case "featured":
+        sortOptions.featured = -1;
+        break;
+      case "newArrivals":
+        sortOptions.createdAt = -1;
+        break;
+      case "aToZ":
+        sortOptions.product = 1;
+        break;
+      case "zToA":
+        sortOptions.product = -1;
+        break;
+      default:
+        break;
+    }
+
+    const totalProducts = await Product.countDocuments(filter);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const gamesProducts = await Product.find(filter)
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(limit);
+
+    const filterQueryString = Object.entries(req.query)
+      .filter(([key]) => key !== 'page')
+      .map(([key, value]) => `&${key}=${value}`)
+      .join('');
+
+    const renderData = {
+      products: gamesProducts,
+      fullName,
+      currentPage: page,
+      totalPages,
+      filterQueryString,
+      filters: req.query
+    };
+
+    return res.render("games", renderData);
   } catch (error) {
     console.error("Error rendering games page:", error);
     res.status(500).send("Internal Server Error");
   }
 };
 
+
 //function for render computer page
 const getcomputerProducts = async (req, res) => {
   try {
     let fullName = "";
+    const page = parseInt(req.query.page) || 1;
+    const limit = 12; // Number of products per page
+    const skip = (page - 1) * limit;
+    const { price, sort } = req.query;
 
     if (req.session.userData) {
       const { email } = req.session.userData;
@@ -139,6 +254,7 @@ const getcomputerProducts = async (req, res) => {
         fullName = user.fullname;
       }
     }
+
     const categories = await categoryModel.find({
       category: "Computer",
       status: true,
@@ -148,19 +264,72 @@ const getcomputerProducts = async (req, res) => {
       return res.render("computer", { products: [], fullName });
     }
 
-    const categoryNames = categories.map((cat) => cat.category);
-
-    const computerProducts = await Product.find({
-      category: { $in: categoryNames },
+    let filter = {
+      category: { $in: categories.map((cat) => cat.category) },
       status: true,
-    });
+    };
 
-    return res.render("computer", { products: computerProducts, fullName });
+    if (price) {
+      const [min, max] = price.split("-").map(Number);
+      filter.price = { $gte: min, $lte: max };
+    }
+
+    let sortOptions = {};
+    switch (sort) {
+      case "priceAsc":
+        sortOptions.price = 1;
+        break;
+      case "priceDesc":
+        sortOptions.price = -1;
+        break;
+      case "ratings":
+        sortOptions.ratings = -1;
+        break;
+      case "featured":
+        sortOptions.featured = -1;
+        break;
+      case "newArrivals":
+        sortOptions.createdAt = -1;
+        break;
+      case "aToZ":
+        sortOptions.product = 1;
+        break;
+      case "zToA":
+        sortOptions.product = -1;
+        break;
+      default:
+        break;
+    }
+
+    const totalProducts = await Product.countDocuments(filter);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const computerProducts = await Product.find(filter)
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(limit);
+
+    const filterQueryString = Object.entries(req.query)
+      .filter(([key]) => key !== 'page')
+      .map(([key, value]) => `&${key}=${value}`)
+      .join('');
+
+    const renderData = {
+      products: computerProducts,
+      fullName,
+      currentPage: page,
+      totalPages,
+      filterQueryString,
+      filters: req.query
+    };
+
+    return res.render("computer", renderData);
   } catch (error) {
     console.error("Error rendering computer page:", error);
     res.status(500).send("Internal Server Error");
   }
 };
+
 
 //function for shop page
 const getshopProducts = async (req, res) => {
