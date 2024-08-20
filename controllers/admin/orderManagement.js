@@ -290,7 +290,7 @@ const cancelProductAsAdmin = async (req, res) => {
 //function for return products which approved by admin in admin side
 const returnProductAsAdmin = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.orderId);
+    const order = await Order.findOne({customOrderId: req.params.customOrderId });
     const productId = req.params.productId;
 
     if (!order) {

@@ -79,6 +79,18 @@ router.post(
   orderManagement.changeOrderStatus
 );
 router.get("/logout", adminController.adminLogout);
+
+router.post(
+  "/orders/return-order/:customOrderId",
+  adminAuth.isLogin,
+  orderManagement.returnOrder
+);
+router.post(
+  "/orders/return-product/:customOrderId/:productId",
+  adminAuth.isLogin,
+  orderManagement.returnProductAsAdmin
+);
+
 router.post(
   "/cancelOrder/:customOrderId",
   adminAuth.isLogin,
