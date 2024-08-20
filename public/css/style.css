@@ -1,6 +1,6 @@
 /* CSS for Navbar */
 .nav-link {
-  color: #552FA8 !important;
+  color: #fff !important;
 }
 
 .navbar {
@@ -411,7 +411,7 @@ h1,h2,h3{
   height: 350px; /* Set height to your desired fixed height */
   margin-bottom: 20px; /* Add margin bottom */
   margin-right: 20px; /* Add margin right for spacing between cards */
-  border: 2.5px solid #3498db !important
+  border: 2.5px solid #552FA8 !important
 
 }
 

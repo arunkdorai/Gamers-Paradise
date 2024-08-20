@@ -33,6 +33,136 @@
         box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.1);
       }
     </style>
+        <style>
+          :root {
+      --primary-color: #552FA8;
+      --secondary-color: #2eaccc;
+      --accent-color: #e74c3c;
+      --text-color: #333;
+      --light-bg: #f8f9fa;
+    }
+    
+    body {
+      font-family: 'Arial', sans-serif;
+      color: var(--text-color);
+    }
+    
+    /* Navbar styles */
+    .navbar {
+      background-color: var(--primary-color) !important;
+      padding: 15px 0;
+    }
+    
+    .navbar-brand img {
+      height: 80px;
+    }
+    
+    .navbar-nav .nav-link {
+      color: white !important;
+      font-weight: bold;
+      margin: 0 10px;
+      transition: color 0.3s ease;
+    }
+    
+    .navbar-nav .nav-link:hover {
+      color: var(--secondary-color) !important;
+    }
+    
+    .search-form {
+      color: #f8f9fa;
+      position: relative;
+    }
+    
+    .search-input {
+      border-radius: 20px;
+      padding: 20px;
+      background-color: #f8f9fa;
+    }
+    
+    .search-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--light-bg);
+    }
+    
+    @media (min-width: 576px) {
+        .mr-sm-2, .mx-sm-2 {
+            margin-right: -1.5rem !important;
+        }
+    }
+    
+    .wishlist-icon, .cart-icon {
+      color: white;
+      font-size: 1.2em;
+      margin: 0 10px;
+      transition: color 0.3s ease;
+    }
+    
+    .wishlist-icon:hover, .cart-icon:hover {
+      color: var(--secondary-color);
+    }
+    
+    .user-info .nav-link {
+      color: white !important;
+    }
+    
+    .dropdown-menu {
+      background-color: var(--light-bg);
+    }
+    
+    .dropdown-item {
+      color: var(--text-color);
+      transition: background-color 0.3s ease;
+    }
+    
+    .dropdown-item:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    /* Footer styles */
+    
+    .main-footer {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 40px 0;
+    }
+    
+    .footer-section h5 {
+      color: var(--secondary-color);
+      margin-bottom: 20px;
+    }
+    
+    .footer-section ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    
+    .footer-section ul li {
+      margin-bottom: 10px;
+    }
+    
+    .social-media-icons a {
+      color: white;
+      margin-right: 15px;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+    
+    .social-media-icons a:hover {
+      color: var(--accent-color);
+      text-decoration: none;
+    }
+    
+    /* .footer-separation {
+      height: 5px;
+      background-color: var(--accent-color);
+    } */
+        </style>
   </head>
   <body>
     <!-- Navbar -->
@@ -87,13 +217,17 @@
       </a>
 
       <% if (fullName) { %>
-      <div class="user-info">
-        <a href="/profile" class="nav-link nav-linklogout"><%= fullName %></a>
-        <a href="/logout" class="nav-link logout nav-linklogout">
-          <i class="fas fa-sign-out-alt"></i>
-        </a>
-      </div>
-      <% } %>
+        <div class="user-info dropdown">
+          <a href="#" class="nav-link dropdown-toggle" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <%= fullName %>
+          </a>
+          <div class="dropdown-menu" aria-labelledby="userDropdown">
+            <a class="dropdown-item" href="/profile">Profile</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/logout">Logout</a>
+          </div>
+        </div>
+        <% } %>
 
       <!-- Hamburger Menu Toggle Button -->
       <button
